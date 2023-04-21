@@ -9,7 +9,11 @@
 plugins {
     // Apply the Java Gradle plugin development plugin to add support for developing Gradle plugins
     id 'java-gradle-plugin'
+    id 'maven-publish'
+    id 'com.palantir.git-version' version '3.0.0'
 }
+
+version = gitVersion()
 
 repositories {
     // Use Maven Central for resolving dependencies.

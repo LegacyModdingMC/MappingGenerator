@@ -14,6 +14,7 @@ plugins {
 }
 
 version = gitVersion()
+group = 'io.legacymoddingmc.mappinggenerator'
 
 repositories {
     // Use Maven Central for resolving dependencies.
@@ -28,7 +29,7 @@ gradlePlugin {
     // Define the plugin
     plugins {
         greeting {
-            id = 'io.legacymoddingmc.mappinggenerator.greeting'
+            id = 'io.legacymoddingmc.mappinggenerator'
             implementationClass = 'io.legacymoddingmc.mappinggenerator.MappingGeneratorPlugin'
         }
     }

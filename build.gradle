@@ -11,6 +11,7 @@ plugins {
     id 'java-gradle-plugin'
     id 'maven-publish'
     id 'com.palantir.git-version' version '3.0.0'
+    id 'io.freefair.lombok' version '8.0.1'
 }
 
 version = gitVersion()

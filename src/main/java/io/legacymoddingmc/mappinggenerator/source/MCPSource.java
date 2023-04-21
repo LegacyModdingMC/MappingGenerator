@@ -20,7 +20,7 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor
 public class MCPSource implements IMappingSource {
 
-    public static enum Type {
+    public enum Type {
         PARAMETERS,
         METHOD_COMMENTS
     }

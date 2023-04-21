@@ -19,10 +19,17 @@ group = 'io.legacymoddingmc.mappinggenerator'
 repositories {
     // Use Maven Central for resolving dependencies.
     mavenCentral()
+
+    maven {
+        // GTNH RetroFuturaGradle and ASM Fork
+        name "GTNH Maven"
+        url "http://jenkins.usrv.eu:8081/nexus/content/groups/public/"
+        allowInsecureProtocol = true
+    }
 }
 
 dependencies {
-
+    implementation 'com.gtnewhorizons:retrofuturagradle:1.2.7'
 }
 
 gradlePlugin {

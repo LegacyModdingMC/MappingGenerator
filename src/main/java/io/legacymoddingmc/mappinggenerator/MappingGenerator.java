@@ -3,16 +3,15 @@ package io.legacymoddingmc.mappinggenerator;
 import com.gtnewhorizons.retrofuturagradle.util.Utilities;
 import io.legacymoddingmc.mappinggenerator.download.MCPConnection;
 import io.legacymoddingmc.mappinggenerator.download.SrgConnection;
+import io.legacymoddingmc.mappinggenerator.name.Method;
 import io.legacymoddingmc.mappinggenerator.source.IMappingSource;
 import org.gradle.api.Project;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class MappingGenerator {
 
@@ -41,6 +40,13 @@ public class MappingGenerator {
         for(IMappingSource source : sources) {
             source.generateExtraParameters(project, mappings, extraParameters);
         }
+
+        Set<String> methodIds = mappings
+                .getNames("1.7.10", "srgId", Method.class)
+                .stream()
+                .map(Method::getMethod)
+                .collect(Collectors.toSet());
+        extraParameters.entrySet().removeIf(e -> !methodIds.contains(e.getKey().split("_")[1]));
 
         writeMappings(extraParameters, out);
     }

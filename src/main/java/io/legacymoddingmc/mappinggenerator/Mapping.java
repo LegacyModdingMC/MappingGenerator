@@ -42,7 +42,7 @@ public class Mapping {
         }
     }
 
-    private Multimap getMapForClass(Class<?> clazz) {
+    public Multimap getMapForClass(Class<?> clazz) {
         if(clazz == Klass.class) return klass;
         else if(clazz == Field.class) return field;
         else if(clazz == Method.class) return method;

@@ -48,7 +48,7 @@ public class JarInfo {
     }
 
     public ClassInfo.MethodInfo getMethodInfo(Method method) {
-        return data.get(method.getClass()).getMethods().get(Pair.of(method.getMethod(), method.getDesc()));
+        return data.get(method.getKlass()).getMethods().get(Pair.of(method.getMethod(), method.getDesc()));
     }
 
     @RequiredArgsConstructor

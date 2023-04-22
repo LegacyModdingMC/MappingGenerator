@@ -29,7 +29,7 @@ public class SrgConnection implements MappingConnection {
     private final File dir;
 
     public SrgConnection(Project project, String gameVersion) {
-        dir = ((Copy)project.getTasks().getByName("generateForgeSrgMappings")).getDestinationDir();
+        dir = new File(((Copy)project.getTasks().getByName("extractForgeUserdev")).getDestinationDir(), "conf");
         this.gameVersion = gameVersion;
     }
 
@@ -53,11 +53,11 @@ public class SrgConnection implements MappingConnection {
     @Override
     public void addTo(MappingCollection mappings) {
         List<String[]> joined = Files
-                .lines(new File(dir, "joined.srg").toPath())
+                .lines(new File(dir, "packaged.srg").toPath())
                 .map(l -> l.trim().split(" "))
                 .collect(Collectors.toList());
         Map<String, String> constructorInfos = Files
-                .lines(new File(dir, "joined.exc").toPath())
+                .lines(new File(dir, "packaged.exc").toPath())
                 .filter(x -> !x.startsWith("#") && x.contains(".<init>"))
                 .map(l -> l.trim().split("="))
                 .collect(Collectors.toMap(p -> p[0], p -> p[1]));

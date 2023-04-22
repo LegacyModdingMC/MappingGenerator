@@ -25,9 +25,6 @@ public class MCPConnection implements MappingConnection {
         String[] mappingVersionParts = mappingVersion.split("-");
         Preconditions.checkState(mappingVersionParts.length == 2);
         this.dir = Utilities.getRawCacheDir(project, "minecraft", "de", "oceanlabs", "mcp", "mcp_" + mappingVersionParts[0], mappingVersionParts[1]);
-        if(!isUpToDate()) {
-            throw new RuntimeException("TODO");
-        }
     }
 
     private boolean isUpToDate() {

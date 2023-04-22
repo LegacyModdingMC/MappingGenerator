@@ -1,11 +1,13 @@
 package io.legacymoddingmc.mappinggenerator.name;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
  * :]
  */
 @Data
+@AllArgsConstructor
 public class Klass implements Name {
-    private final String klass;
+    private String klass;
 }

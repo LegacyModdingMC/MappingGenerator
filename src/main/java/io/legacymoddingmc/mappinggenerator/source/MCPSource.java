@@ -54,7 +54,7 @@ public class MCPSource implements IMappingSource {
 
     @SneakyThrows
     private void generateExtraParametersFromParameters(MappingCollection mappings, MCPConnection mcpConn, Map<String, String> out) {
-        try(CSVReader reader = Utilities.createCsvReader(new File(mcpConn.getDir(), "parameters.csv"))) {
+        try(CSVReader reader = Utilities.createCsvReader(new File(mcpConn.getDir(), "params.csv"))) {
             for(String[] line : reader) {
                 out.put(line[0], line[1]);
             }

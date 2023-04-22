@@ -2,8 +2,11 @@ package io.legacymoddingmc.mappinggenerator.download;
 
 import com.gtnewhorizons.retrofuturagradle.shadow.com.google.common.base.Preconditions;
 import com.gtnewhorizons.retrofuturagradle.shadow.com.opencsv.CSVReader;
+import com.gtnewhorizons.retrofuturagradle.shadow.org.apache.commons.io.FileUtils;
 import com.gtnewhorizons.retrofuturagradle.shadow.org.apache.commons.lang3.ObjectUtils;
 import com.gtnewhorizons.retrofuturagradle.util.Utilities;
+import io.legacymoddingmc.mappinggenerator.GradleUtils;
+import io.legacymoddingmc.mappinggenerator.JavaHelper;
 import io.legacymoddingmc.mappinggenerator.Mapping;
 import io.legacymoddingmc.mappinggenerator.MappingCollection;
 import io.legacymoddingmc.mappinggenerator.name.Field;
@@ -13,8 +16,10 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.gradle.api.Project;
+import org.gradle.api.tasks.WorkResult;
 
 import java.io.File;
+import java.net.URL;
 import java.util.List;
 
 public class MCPConnection implements MappingConnection {
@@ -23,23 +28,45 @@ public class MCPConnection implements MappingConnection {
     private final String gameVersion;
     @Getter
     private final String mappingVersion;
-    @Getter
     private final File dir;
+
+    private final Project project;
+    private final String url;
 
     public MCPConnection(Project project, String gameVersion, String mappingVersion) {
         this.gameVersion = gameVersion;
         this.mappingVersion = mappingVersion;
         String[] mappingVersionParts = mappingVersion.split("_");
         Preconditions.checkState(mappingVersionParts.length == 2);
-        this.dir = Utilities.getRawCacheDir(project, "minecraft", "de", "oceanlabs", "mcp", "mcp_" + mappingVersionParts[0], mappingVersionParts[1]);
+        String chan = mappingVersionParts[0];
+        String ver = mappingVersionParts[1];
+        dir = FileUtils.getFile(GradleUtils.getCacheDir(project), "mappings", "mcp", mappingVersion + "-" + gameVersion);
+        url = "https://maven.minecraftforge.net/de/oceanlabs/mcp/mcp_"+chan+"/"+ver+"-"+gameVersion+"/mcp_"+chan+"-"+ver+"-"+gameVersion+".zip";
+        this.project = project;
     }
 
     private boolean isUpToDate() {
         return new File(dir, "methods.csv").exists();
     }
 
+    @SneakyThrows
+    public File getDir() {
+        if(!isUpToDate()) {
+            File outFile = new File(dir, JavaHelper.getLast(url.split("/")));
+            FileUtils.copyURLToFile(new URL(url), outFile);
+            WorkResult work = project.copy(a -> {
+                a.from(project.zipTree(outFile));
+                a.into(dir);
+            });
+            System.out.println("hmm");
+            outFile.delete();
+        }
+        return dir;
+    }
+
     @Override
     public void addTo(MappingCollection mappings) {
+        getDir();
         val methods = readCSV(new File(dir, "methods.csv"));
         val fields = readCSV(new File(dir, "fields.csv"));
         val params = readCSV(new File(dir, "params.csv"));

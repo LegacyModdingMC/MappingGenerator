@@ -26,7 +26,7 @@ public class MappingGeneratorPlugin implements Plugin<Project> {
                 System.out.println("Running generateExtraMappings!");
                 MappingGenerator generator = new MappingGenerator(project);
                 generator.addSource(new MCPSource("1.7.10", "stable_12", MCPSource.Type.METHOD_COMMENTS));
-                generator.addSource(new MCPSource("1.12.2", "stable_39", MCPSource.Type.PARAMETERS));
+                generator.addSource(new MCPSource("1.12", "stable_39", MCPSource.Type.PARAMETERS));
                 generator.addSource(new YarnSource("1.7.10", "latest"));
                 generator.generateExtraParameters(outFile);
             });

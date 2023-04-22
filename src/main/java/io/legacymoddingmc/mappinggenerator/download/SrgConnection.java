@@ -4,10 +4,9 @@ import static io.legacymoddingmc.mappinggenerator.JavaHelper.replaceLastSlashWit
 import static io.legacymoddingmc.mappinggenerator.JavaHelper.getLast;
 
 import com.gtnewhorizons.retrofuturagradle.shadow.com.google.common.base.Preconditions;
-import io.legacymoddingmc.mappinggenerator.BytecodeUtils;
-import io.legacymoddingmc.mappinggenerator.Mapping;
-import io.legacymoddingmc.mappinggenerator.MappingCollection;
-import io.legacymoddingmc.mappinggenerator.MappingHelper;
+import com.gtnewhorizons.retrofuturagradle.shadow.org.apache.commons.io.FileUtils;
+import com.gtnewhorizons.retrofuturagradle.shadow.org.eclipse.core.internal.utils.FileUtil;
+import io.legacymoddingmc.mappinggenerator.*;
 import io.legacymoddingmc.mappinggenerator.name.Field;
 import io.legacymoddingmc.mappinggenerator.name.Klass;
 import io.legacymoddingmc.mappinggenerator.name.Method;
@@ -15,8 +14,10 @@ import io.legacymoddingmc.mappinggenerator.name.Parameter;
 import lombok.SneakyThrows;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.Copy;
+import org.gradle.api.tasks.WorkResult;
 
 import java.io.File;
+import java.net.URL;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
@@ -27,31 +28,48 @@ public class SrgConnection implements MappingConnection {
     private final String gameVersion;
 
     private final File dir;
+    private String url;
+
+    private final Project project;
 
     public SrgConnection(Project project, String gameVersion) {
-        dir = new File(((Copy)project.getTasks().getByName("extractForgeUserdev")).getDestinationDir(), "conf");
         this.gameVersion = gameVersion;
+        if(gameVersion.equals("1.7.10")) {
+            dir = new File(((Copy) project.getTasks().getByName("extractForgeUserdev")).getDestinationDir(), "conf");
+        } else {
+            dir = FileUtils.getFile(GradleUtils.getCacheDir(project), "mappings", "srg", gameVersion);
+        }
+        url = "https://maven.minecraftforge.net/de/oceanlabs/mcp/mcp/" + gameVersion + "/mcp-" + gameVersion + "-srg.zip";
+        this.project = project;
     }
 
-
-    public File getto() {
-        if(isUpToDate()) {
-            return dir;
-        } else {
-            throw new UnsupportedOperationException("Downloading SRG is not implemented.");
+    @SneakyThrows
+    public File getDir() {
+        if(!isUpToDate()) {
+            throw new UnsupportedOperationException("SRG downloading is not supported.");
+            /*
+            File outFile = new File(dir, JavaHelper.getLast(url.split("/")));
+            FileUtils.copyURLToFile(new URL(url), outFile);
+            WorkResult work = project.copy(a -> {
+                a.from(project.zipTree(outFile));
+                a.into(dir);
+            });
+            System.out.println("hmm");
+            outFile.delete();
+            */
         }
+        return dir;
     }
 
     private boolean isUpToDate() {
-        if(!gameVersion.equals("1.7.10")) {
-            throw new UnsupportedOperationException("Only 1.7.10 is supported.");
-        }
         return new File(dir, "packaged.srg").exists();
     }
 
     @SneakyThrows
     @Override
     public void addTo(MappingCollection mappings) {
+        getDir();
+
         List<String[]> joined = Files
                 .lines(new File(dir, "packaged.srg").toPath())
                 .map(l -> l.trim().split(" "))

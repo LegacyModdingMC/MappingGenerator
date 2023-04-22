@@ -52,11 +52,12 @@ public class MCPConnection implements MappingConnection {
             val side = line[2];
             val desc = line[3];
             val id = searge.split("_")[1];
-            val fullNotch = mappings.translate(new Field(null, id, null), gameVersion, "srgId", "notch");
-            val fullSrg = mappings.translate(fullNotch, gameVersion, "notch", "srg");
+            for(val fullNotch : mappings.multiTranslate(new Field(null, id, null), gameVersion, "srgId", "notch")) {
+                val fullSrg = mappings.translate(fullNotch, gameVersion, "notch", "srg");
 
-            if (fullSrg != null) {
-                mapping.put(fullSrg, new Field(fullSrg.getKlass(), name, fullSrg.getDesc()));
+                if (fullSrg != null) {
+                    mapping.put(fullSrg, new Field(fullSrg.getKlass(), name, fullSrg.getDesc()));
+                }
             }
         }
         
@@ -66,11 +67,12 @@ public class MCPConnection implements MappingConnection {
             val side = line[2];
             val desc = line[3];
             val id = searge.split("_")[1];
-            val fullNotch = mappings.translate(new Method(null, id, null), gameVersion, "srgId", "notch");
-            val fullSrg = mappings.translate(fullNotch, gameVersion, "notch", "srg");
+            for(val fullNotch : mappings.multiTranslate(new Method(null, id, null), gameVersion, "srgId", "notch")) {
+                val fullSrg = mappings.translate(fullNotch, gameVersion, "notch", "srg");
 
-            if(fullSrg != null) {
-                mapping.put(fullSrg, new Method(fullSrg.getKlass(), name, fullSrg.getDesc()));
+                if (fullSrg != null) {
+                    mapping.put(fullSrg, new Method(fullSrg.getKlass(), name, fullSrg.getDesc()));
+                }
             }
         }
         
@@ -79,10 +81,9 @@ public class MCPConnection implements MappingConnection {
             val name = line[1];
             val side = line[2];
             val id = searge.split("_")[1];
-            val methodFullNotch = mappings.translate(new Method(null, id, null), gameVersion, "srgId", "notch");
-
-            for(val methodFullSrg : mappings.multiTranslate(methodFullNotch, gameVersion, "notch", "srg")) {
-                if(methodFullSrg == null) {
+            for(val methodFullNotch : mappings.multiTranslate(new Method(null, id, null), gameVersion, "srgId", "notch")) {
+                val methodFullSrg = mappings.translate(methodFullNotch, gameVersion, "notch", "srg");
+                if (methodFullSrg == null) {
                     System.err.println("Failed to find method for parameter " + searge + " in " + dir.getName());
                     continue;
                 }

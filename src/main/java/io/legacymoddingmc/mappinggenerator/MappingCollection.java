@@ -34,7 +34,31 @@ public class MappingCollection {
     }
 
     public <T> T translate(T name, String version, String src, String dest) {
-        throw new RuntimeException("TODO");
+        return translate(name, version, src, dest, false);
+    }
+
+    public <T> T translate(T name, String version, String src, String dest, boolean forceDifferent) {
+        Mapping mapping = mappings.get(Pair.of(src, dest));
+        T newName = mapping.get(name);
+        if(forceDifferent && name.equals(newName)) {
+            return null;
+        } else {
+            return newName;
+        }
+    }
+
+    public <T> Collection<T> multiTranslate(T name, String version, String src, String dest) {
+        return multiTranslate(name, version, src, dest, false);
+    }
+
+    public <T> Collection<T> multiTranslate(T name, String version, String src, String dest, boolean forceDifferent) {
+        Mapping mapping = mappings.get(Pair.of(src, dest));
+        Collection<T> newNames = mapping.getAll(name);
+        if(forceDifferent && newNames.size() == 1 && name.equals(newNames.iterator().next())) {
+            return null;
+        } else {
+            return newNames;
+        }
     }
 
     public Collection<Parameter> getParameters(String version, String language) {
@@ -55,9 +79,5 @@ public class MappingCollection {
         for(MappingConnection connection : connections) {
             load(connection);
         }
-    }
-
-    public <T> Collection<T> multiTranslate(T name, String version, String src, String srg) {
-        throw new RuntimeException("TODO");
     }
 }

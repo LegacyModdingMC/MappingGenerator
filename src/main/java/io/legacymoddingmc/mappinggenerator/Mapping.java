@@ -1,7 +1,9 @@
 package io.legacymoddingmc.mappinggenerator;
 
 import com.gtnewhorizons.retrofuturagradle.shadow.com.google.common.collect.ArrayListMultimap;
+import com.gtnewhorizons.retrofuturagradle.shadow.com.google.common.collect.HashMultimap;
 import com.gtnewhorizons.retrofuturagradle.shadow.com.google.common.collect.Multimap;
+import com.gtnewhorizons.retrofuturagradle.shadow.com.google.common.collect.SetMultimap;
 import io.legacymoddingmc.mappinggenerator.name.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -20,10 +22,10 @@ public class Mapping {
     @Getter
     private final String dest;
 
-    private final Multimap<Klass, Klass> klass = ArrayListMultimap.create();
-    private final Multimap<Field, List<Field>> field = ArrayListMultimap.create();
-    private final Multimap<Method, List<Method>> method = ArrayListMultimap.create();
-    private final Multimap<Parameter, Parameter> parameter = ArrayListMultimap.create();
+    private final SetMultimap<Klass, Klass> klass = HashMultimap.create();
+    private final SetMultimap<Field, List<Field>> field = HashMultimap.create();
+    private final SetMultimap<Method, List<Method>> method = HashMultimap.create();
+    private final SetMultimap<Parameter, Parameter> parameter = HashMultimap.create();
 
     public <T> void put(T key, T value) {
         getMapForClass(key.getClass()).put(key, value);
@@ -37,6 +39,8 @@ public class Mapping {
         Collection<T> vals = getAll(key);
         if(vals.size() == 1) {
             return vals.iterator().next();
+        } else if(vals.isEmpty()) {
+            return null;
         } else {
             throw new IllegalStateException("Multiple values for key " + key + ", expected one.");
         }

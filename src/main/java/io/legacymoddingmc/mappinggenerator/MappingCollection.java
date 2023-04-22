@@ -33,19 +33,7 @@ public class MappingCollection {
         throw new RuntimeException("TODO");
     }
 
-    public Klass translate(Klass name, String version, String src, String dest) {
-        throw new RuntimeException("TODO");
-    }
-
-    public Field translate(Field name, String version, String src, String dest) {
-        throw new RuntimeException("TODO");
-    }
-
-    public Method translate(Method name, String version, String src, String dest) {
-        throw new RuntimeException("TODO");
-    }
-
-    public Parameter translate(Parameter name, String version, String src, String dest) {
+    public <T> T translate(T name, String version, String src, String dest) {
         throw new RuntimeException("TODO");
     }
 
@@ -67,5 +55,9 @@ public class MappingCollection {
         for(MappingConnection connection : connections) {
             load(connection);
         }
+    }
+
+    public <T> Collection<T> multiTranslate(T name, String version, String src, String srg) {
+        throw new RuntimeException("TODO");
     }
 }

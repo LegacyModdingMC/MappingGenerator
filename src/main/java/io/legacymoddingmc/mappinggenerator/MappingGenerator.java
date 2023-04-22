@@ -37,7 +37,7 @@ public class MappingGenerator {
 
         for(IMappingSource source : sources) {
             mappings.loadNecessaryMappingsFor(source);
-            source.generateExtraParameters(extraParameters);
+            source.generateExtraParameters(mappings, extraParameters);
         }
 
         writeMappings(extraParameters, out);

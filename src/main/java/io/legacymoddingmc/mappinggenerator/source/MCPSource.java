@@ -3,10 +3,12 @@ package io.legacymoddingmc.mappinggenerator.source;
 import com.gtnewhorizons.retrofuturagradle.shadow.com.opencsv.CSVReader;
 import com.gtnewhorizons.retrofuturagradle.shadow.org.apache.commons.lang3.StringUtils;
 import com.gtnewhorizons.retrofuturagradle.util.Utilities;
+import io.legacymoddingmc.mappinggenerator.BytecodeUtils;
 import io.legacymoddingmc.mappinggenerator.MappingCollection;
 import io.legacymoddingmc.mappinggenerator.name.Method;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 
 import java.io.File;
 import java.util.Arrays;
@@ -41,6 +43,7 @@ public class MCPSource implements IMappingSource {
         }
     }
 
+    @SneakyThrows
     private void generateExtraParametersFromParameters(MappingCollection mappings, Map<String, String> out) {
         try(CSVReader reader = Utilities.createCsvReader(new File(mappings.getDir(gameVersion, mappingVersion), "parameters.csv"))) {
             for(String[] line : reader) {
@@ -49,6 +52,7 @@ public class MCPSource implements IMappingSource {
         }
     }
 
+    @SneakyThrows
     private void generateExtraParametersFromMethodComments(MappingCollection mappings, Map<String, String> out) {
         try(CSVReader reader = Utilities.createCsvReader(new File(mappings.getDir(gameVersion, mappingVersion), "methods.csv"))) {
             Method methodId = new Method(null, null, null);
@@ -57,11 +61,11 @@ public class MCPSource implements IMappingSource {
                 if(desc.contains("Args:")) {
                     String argDesc = desc.substring(desc.indexOf("Args:"));
                     methodId.setMethod(line[0].split("_")[1]);
-                    Method notch = mappings.translate("1.7.10", methodId, "methodId", "notch");
+                    Method notch = mappings.translate(methodId, "1.7.10", "methodId", "notch");
                     String descriptor = notch.getDesc();
                     int numParams = BytecodeUtils.countDescriptorParams(descriptor);
                     List<String> splitDesc = splitDescription(argDesc.substring(5));
-                    List<Integer> parameterIndexes = mappings.getJarInfo("1.7.10").getMethodInfo(notch).getParameterIndexes();
+                    List<Integer> parameterIndexes = BytecodeUtils.getParameterIndexes(descriptor, mappings.getJarInfo("1.7.10").getMethodInfo(notch).isStatic());
                     for(int i = 0; i < splitDesc.size(); i++) {
                         String srgParam = "p_" + methodId.getMethod() + "_" + parameterIndexes.get(i) + "_";
                         out.put(srgParam, splitDesc.get(i));
@@ -84,7 +88,7 @@ public class MCPSource implements IMappingSource {
         Matcher notTextMatcher = notText.matcher(desc);
         int notTextBoundary = notTextMatcher.find() ? notTextMatcher.start() : desc.length();
 
-        desc = desc.substring(0, notTextBoundary)
+        desc = desc.substring(0, notTextBoundary);
 /*
     // End at one of the following:
     // - a character that is not a space or a letter
@@ -152,7 +156,7 @@ public class MCPSource implements IMappingSource {
             // Camelize
             String camel = String.join("", Arrays.stream(words).map(StringUtils::capitalize).toArray(String[]::new));
             if(!camel.startsWith("NBT")) { // exception :>
-                camel = "" + Character.toLowerCase(camel.charAt(0)) + camel.substring(1)
+                camel = "" + Character.toLowerCase(camel.charAt(0)) + camel.substring(1);
             }
             return camel;
         }).filter(x -> !x.isEmpty()).collect(Collectors.toList());

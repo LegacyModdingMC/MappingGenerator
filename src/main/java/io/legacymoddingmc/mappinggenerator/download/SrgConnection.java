@@ -149,6 +149,6 @@ public class SrgConnection implements MappingConnection {
             }
         }
         
-        mappings.put(srg2notch, notch2srg, srgId2notch);
+        mappings.put(gameVersion, srg2notch, notch2srg, srgId2notch);
     }
 }

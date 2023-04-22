@@ -120,7 +120,7 @@ public class MCPConnection implements MappingConnection {
             }
         }
 
-        mappings.put(mapping, mapping.inverse());
+        mappings.put(gameVersion, mapping, mapping.inverse());
     }
 
     @SneakyThrows

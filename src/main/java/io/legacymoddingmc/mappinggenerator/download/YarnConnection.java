@@ -134,7 +134,7 @@ public class YarnConnection implements MappingConnection {
             }
         }
         
-        mappings.put(notch2intermediary, notch2intermediary.inverse(), intermediary2yarn, intermediary2yarn.inverse());
+        mappings.put(gameVersion, notch2intermediary, notch2intermediary.inverse(), intermediary2yarn, intermediary2yarn.inverse());
     }
 
     public static class LoaderVersionMeta {

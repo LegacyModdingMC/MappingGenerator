@@ -2,14 +2,8 @@ package io.legacymoddingmc.mappinggenerator;
 
 import com.gtnewhorizons.retrofuturagradle.shadow.org.apache.commons.lang3.tuple.Pair;
 import io.legacymoddingmc.mappinggenerator.download.MappingConnection;
-import io.legacymoddingmc.mappinggenerator.download.SrgConnection;
-import io.legacymoddingmc.mappinggenerator.name.Field;
-import io.legacymoddingmc.mappinggenerator.name.Klass;
-import io.legacymoddingmc.mappinggenerator.name.Method;
-import io.legacymoddingmc.mappinggenerator.name.Parameter;
-import io.legacymoddingmc.mappinggenerator.source.IMappingSource;
-import io.legacymoddingmc.mappinggenerator.source.MCPSource;
-import io.legacymoddingmc.mappinggenerator.source.YarnSource;
+import io.legacymoddingmc.mappinggenerator.name.*;
+import lombok.val;
 
 import java.io.File;
 import java.util.Collection;
@@ -19,7 +13,7 @@ import java.util.Map;
 public class MappingCollection {
 
     private final Map<String, JarInfo> jarInfos = new HashMap<>();
-    private final Map<Pair<String, String>, Mapping> mappings = new HashMap<>();
+    private final Map<String, Map<Pair<String, String>, Mapping>> mappings = new HashMap<>();
 
     public void addVanillaJar(String gameVersion, File jar) {
         jarInfos.computeIfAbsent(gameVersion, x -> new JarInfo(gameVersion)).load(jar);
@@ -29,12 +23,19 @@ public class MappingCollection {
         return jarInfos.get(version);
     }
 
+    private Mapping getMapping(String version, String src, String dest) {
+        val dir = Pair.of(src, dest);
+        return mappings
+                .computeIfAbsent(version, x -> new HashMap<>())
+                .computeIfAbsent(dir, x -> new Mapping(src, dest));
+    }
+
     public <T> T translate(T name, String version, String src, String dest) {
         return translate(name, version, src, dest, false);
     }
 
     public <T> T translate(T name, String version, String src, String dest, boolean forceDifferent) {
-        Mapping mapping = mappings.get(Pair.of(src, dest));
+        Mapping mapping = getMapping(version, src, dest);
         T newName = mapping.get(name);
         if(forceDifferent && name.equals(newName)) {
             return null;
@@ -48,7 +49,7 @@ public class MappingCollection {
     }
 
     public <T> Collection<T> multiTranslate(T name, String version, String src, String dest, boolean forceDifferent) {
-        Mapping mapping = mappings.get(Pair.of(src, dest));
+        Mapping mapping = getMapping(version, src, dest);
         Collection<T> newNames = mapping.getAll(name);
         if(forceDifferent && newNames.size() == 1 && name.equals(newNames.iterator().next())) {
             return null;
@@ -61,9 +62,11 @@ public class MappingCollection {
         throw new RuntimeException("TODO");
     }
 
-    public void put(Mapping... mappings) {
+    public void put(String version, Mapping... mappings) {
         for(Mapping m : mappings) {
-            this.mappings.put(Pair.of(m.getSrc(), m.getDest()), m);
+            this.mappings
+                    .computeIfAbsent(version, x -> new HashMap<>())
+                    .put(Pair.of(m.getSrc(), m.getDest()), m);
         }
     }
 

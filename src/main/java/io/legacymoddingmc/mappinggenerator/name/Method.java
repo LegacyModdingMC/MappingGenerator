@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class Method {
+public class Method implements Name {
     private String klass;
     private String method;
     private String desc;

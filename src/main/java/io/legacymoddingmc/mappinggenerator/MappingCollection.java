@@ -1,5 +1,8 @@
 package io.legacymoddingmc.mappinggenerator;
 
+import com.gtnewhorizons.retrofuturagradle.shadow.org.apache.commons.lang3.tuple.Pair;
+import io.legacymoddingmc.mappinggenerator.download.MappingConnection;
+import io.legacymoddingmc.mappinggenerator.download.SrgConnection;
 import io.legacymoddingmc.mappinggenerator.name.Field;
 import io.legacymoddingmc.mappinggenerator.name.Klass;
 import io.legacymoddingmc.mappinggenerator.name.Method;
@@ -16,29 +19,10 @@ import java.util.Map;
 public class MappingCollection {
 
     private final Map<String, JarInfo> jarInfos = new HashMap<>();
+    private final Map<Pair<String, String>, Mapping> mappings = new HashMap<>();
 
     public void addVanillaJar(String gameVersion, File jar) {
         jarInfos.computeIfAbsent(gameVersion, x -> new JarInfo(gameVersion)).load(jar);
-    }
-
-    public void loadMcp(String gameVersion, String mappingVersion) {
-        throw new RuntimeException("TODO");
-        //mappings.loadSrg("1.7.10", ((Copy)project.getTasks().getByName("generateForgeSrgMappings")).getDestinationDir());
-        //mappings.loadMcp("1.7.10", Utilities.getRawCacheDir(project, "minecraft", "de", "oceanlabs", "mcp", "mcp_stable", "12"));
-    }
-
-    public void loadYarn(String gameVersion, String mappingVersion) {
-        throw new RuntimeException("TODO");
-    }
-
-    public void loadNecessaryMappingsFor(IMappingSource source) {
-        if(source instanceof YarnSource) {
-            YarnSource yarn = (YarnSource) source;
-            loadYarn(yarn.getGameVersion(), yarn.getMappingVersion());
-        } else if(source instanceof MCPSource) {
-            MCPSource mcp = (MCPSource) source;
-            loadMcp(mcp.getGameVersion(), mcp.getMappingVersion());
-        }
     }
 
     public JarInfo getJarInfo(String version) {
@@ -67,5 +51,21 @@ public class MappingCollection {
 
     public Collection<Parameter> getParameters(String version, String language) {
         throw new RuntimeException("TODO");
+    }
+
+    public void put(Mapping... mappings) {
+        for(Mapping m : mappings) {
+            this.mappings.put(Pair.of(m.getSrc(), m.getDest()), m);
+        }
+    }
+
+    public void load(MappingConnection connection) {
+        connection.addTo(this);
+    }
+
+    public void load(Collection<MappingConnection> connections) {
+        for(MappingConnection connection : connections) {
+            load(connection);
+        }
     }
 }

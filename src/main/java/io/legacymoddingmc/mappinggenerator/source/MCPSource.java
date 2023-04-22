@@ -5,13 +5,18 @@ import com.gtnewhorizons.retrofuturagradle.shadow.org.apache.commons.lang3.Strin
 import com.gtnewhorizons.retrofuturagradle.util.Utilities;
 import io.legacymoddingmc.mappinggenerator.BytecodeUtils;
 import io.legacymoddingmc.mappinggenerator.MappingCollection;
+import io.legacymoddingmc.mappinggenerator.download.MCPConnection;
+import io.legacymoddingmc.mappinggenerator.download.MappingConnection;
+import io.legacymoddingmc.mappinggenerator.download.SrgConnection;
 import io.legacymoddingmc.mappinggenerator.name.Method;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.gradle.api.Project;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -41,6 +46,14 @@ public class MCPSource implements IMappingSource {
         } else if(type == Type.METHOD_COMMENTS) {
             generateExtraParametersFromMethodComments(mappings, out);
         }
+    }
+
+    @Override
+    public Collection<MappingConnection> getNecessaryMappingConnections(Project project) {
+        return Arrays.asList(
+                new SrgConnection(project, gameVersion),
+                new MCPConnection(project, gameVersion, mappingVersion)
+        );
     }
 
     @SneakyThrows

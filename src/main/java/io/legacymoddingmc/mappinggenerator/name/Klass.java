@@ -6,6 +6,6 @@ import lombok.Data;
  * :]
  */
 @Data
-public class Klass {
+public class Klass implements Name {
     private final String klass;
 }

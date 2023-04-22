@@ -1,10 +1,15 @@
 package io.legacymoddingmc.mappinggenerator.source;
 
 import io.legacymoddingmc.mappinggenerator.MappingCollection;
+import io.legacymoddingmc.mappinggenerator.download.MappingConnection;
+import io.legacymoddingmc.mappinggenerator.download.YarnConnection;
 import io.legacymoddingmc.mappinggenerator.name.Parameter;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.gradle.api.Project;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Map;
 
 @RequiredArgsConstructor
@@ -28,5 +33,10 @@ public class YarnSource implements IMappingSource {
                 out.put(srg.getParameter(), yarn.getParameter());
             }
         }
+    }
+
+    @Override
+    public Collection<MappingConnection> getNecessaryMappingConnections(Project project) {
+        return Arrays.asList(new YarnConnection(project, gameVersion, mappingVersion));
     }
 }

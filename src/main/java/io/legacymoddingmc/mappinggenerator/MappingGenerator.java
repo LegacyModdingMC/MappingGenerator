@@ -1,6 +1,8 @@
 package io.legacymoddingmc.mappinggenerator;
 
 import com.gtnewhorizons.retrofuturagradle.util.Utilities;
+import io.legacymoddingmc.mappinggenerator.download.MCPConnection;
+import io.legacymoddingmc.mappinggenerator.download.SrgConnection;
 import io.legacymoddingmc.mappinggenerator.source.IMappingSource;
 import org.gradle.api.Project;
 
@@ -31,12 +33,13 @@ public class MappingGenerator {
         mappings.addVanillaJar("1.7.10", Utilities.getCacheDir(project, "mc-vanilla", "1.7.10", "client.jar"));
         mappings.addVanillaJar("1.7.10", Utilities.getCacheDir(project, "mc-vanilla", "1.7.10", "server.jar"));
 
-        mappings.loadMcp("1.7.10", "stable_12");
+        mappings.load(new SrgConnection(project, "1.7.10"));
+        mappings.load(new MCPConnection(project, "1.7.10", "stable_12"));
 
         Map<String, String> extraParameters = new HashMap<>();
 
         for(IMappingSource source : sources) {
-            mappings.loadNecessaryMappingsFor(source);
+            mappings.load(source.getNecessaryMappingConnections(project));
             source.generateExtraParameters(mappings, extraParameters);
         }
 

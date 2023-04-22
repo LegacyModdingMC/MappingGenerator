@@ -1,9 +1,11 @@
 package io.legacymoddingmc.mappinggenerator.download;
 
+import io.legacymoddingmc.mappinggenerator.MappingCollection;
+
 import java.io.File;
 
 public interface MappingConnection {
 
-    File getRootDir();
+    void addTo(MappingCollection mappings);
 
 }

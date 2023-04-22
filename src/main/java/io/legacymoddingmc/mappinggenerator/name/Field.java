@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 
 @Data
 @AllArgsConstructor
-public class Field {
+public class Field implements Name {
     private String klass;
     private String field;
     @Nullable

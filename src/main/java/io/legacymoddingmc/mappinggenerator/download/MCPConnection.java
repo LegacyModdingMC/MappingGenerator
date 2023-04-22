@@ -124,7 +124,7 @@ public class MCPConnection implements MappingConnection {
     }
 
     @SneakyThrows
-    private static List<String[]> readCSV(File file) {
+    public static List<String[]> readCSV(File file) {
         try(CSVReader reader = Utilities.createCsvReader(file)) {
             return reader.readAll();
         }

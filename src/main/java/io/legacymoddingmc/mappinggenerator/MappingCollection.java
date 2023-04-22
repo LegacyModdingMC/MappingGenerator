@@ -1,14 +1,13 @@
 package io.legacymoddingmc.mappinggenerator;
 
+import com.gtnewhorizons.retrofuturagradle.shadow.com.google.common.collect.Multimap;
 import com.gtnewhorizons.retrofuturagradle.shadow.org.apache.commons.lang3.tuple.Pair;
 import io.legacymoddingmc.mappinggenerator.download.MappingConnection;
 import io.legacymoddingmc.mappinggenerator.name.*;
 import lombok.val;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class MappingCollection {
 
@@ -23,11 +22,13 @@ public class MappingCollection {
         return jarInfos.get(version);
     }
 
+    private Map<Pair<String, String>, Mapping> getVersionMap(String version) {
+        return mappings.computeIfAbsent(version, x -> new HashMap<>());
+    }
+
     private Mapping getMapping(String version, String src, String dest) {
         val dir = Pair.of(src, dest);
-        return mappings
-                .computeIfAbsent(version, x -> new HashMap<>())
-                .computeIfAbsent(dir, x -> new Mapping(src, dest));
+        return getVersionMap(version).computeIfAbsent(dir, x -> new Mapping(src, dest));
     }
 
     public <T> T translate(T name, String version, String src, String dest) {
@@ -37,7 +38,7 @@ public class MappingCollection {
     public <T> T translate(T name, String version, String src, String dest, boolean forceDifferent) {
         Mapping mapping = getMapping(version, src, dest);
         T newName = mapping.get(name);
-        if(forceDifferent && name.equals(newName)) {
+        if(forceDifferent && Objects.equals(name, newName)) {
             return null;
         } else {
             return newName;
@@ -58,15 +59,21 @@ public class MappingCollection {
         }
     }
 
-    public Collection<Parameter> getParameters(String version, String language) {
-        throw new RuntimeException("TODO");
+    public <T> Collection<T> getNames(String version, String language, Class<T> classOfT) {
+        for(val e : getVersionMap(version).entrySet()) {
+            String src = e.getKey().getLeft();
+            String dest = e.getKey().getRight();
+            Mapping mapping = e.getValue();
+            if(src.equals(language)) {
+                return mapping.getMapForClass(classOfT).keySet();
+            }
+        }
+        return Collections.emptyList();
     }
 
     public void put(String version, Mapping... mappings) {
         for(Mapping m : mappings) {
-            this.mappings
-                    .computeIfAbsent(version, x -> new HashMap<>())
-                    .put(Pair.of(m.getSrc(), m.getDest()), m);
+            getVersionMap(version).put(Pair.of(m.getSrc(), m.getDest()), m);
         }
     }
 

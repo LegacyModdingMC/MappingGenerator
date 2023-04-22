@@ -1,7 +1,6 @@
 package io.legacymoddingmc.mappinggenerator.source;
 
 import io.legacymoddingmc.mappinggenerator.MappingCollection;
-import io.legacymoddingmc.mappinggenerator.download.MappingConnection;
 import io.legacymoddingmc.mappinggenerator.download.YarnConnection;
 import io.legacymoddingmc.mappinggenerator.name.Parameter;
 import lombok.Getter;
@@ -21,12 +20,12 @@ public class YarnSource implements IMappingSource {
         YarnConnection yarnConn = new YarnConnection(project, mappingVersion);
         mappings.load(yarnConn);
 
-        for(Parameter notch : mappings.getParameters("1.7.10", "notch")) {
+        for(Parameter notch : mappings.getNames("1.7.10", "notch", Parameter.class)) {
             Parameter srg = mappings.translate(notch, "1.7.10", "notch", "srg");
-            Parameter mcp = mappings.translate(srg, "1.7.10", "srg", "mcp");
+            Parameter mcp = mappings.translate(srg, "1.7.10", "srg", "mcp", true);
 
             Parameter intermediary = mappings.translate(notch, "1.7.10", "notch", "intermediary");
-            Parameter yarn = mappings.translate(srg, "1.7.10", "intermediary", "yarn");
+            Parameter yarn = mappings.translate(intermediary, "1.7.10", "intermediary", "yarn", true);
 
             if(mcp == null && yarn != null) {
                 out.put(srg.getParameter(), yarn.getParameter());

@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -23,8 +24,8 @@ public class Mapping {
     private final String dest;
 
     private final SetMultimap<Klass, Klass> klass = HashMultimap.create();
-    private final SetMultimap<Field, List<Field>> field = HashMultimap.create();
-    private final SetMultimap<Method, List<Method>> method = HashMultimap.create();
+    private final SetMultimap<Field, Field> field = HashMultimap.create();
+    private final SetMultimap<Method, Method> method = HashMultimap.create();
     private final SetMultimap<Parameter, Parameter> parameter = HashMultimap.create();
 
     public <T> void put(T key, T value) {
@@ -32,7 +33,11 @@ public class Mapping {
     }
 
     public <T> Collection<T> getAll(T key) {
-        return getMapForClass(key.getClass()).get(key);
+        if(key == null) {
+            return Collections.emptyList();
+        } else {
+            return getMapForClass(key.getClass()).get(key);
+        }
     }
 
     public <T> T get(T key) {

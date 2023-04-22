@@ -29,10 +29,6 @@ public class MappingCollection {
         return jarInfos.get(version);
     }
 
-    public File getDir(String gameVersion, String mappingVersion) {
-        throw new RuntimeException("TODO");
-    }
-
     public <T> T translate(T name, String version, String src, String dest) {
         return translate(name, version, src, dest, false);
     }
@@ -72,7 +68,14 @@ public class MappingCollection {
     }
 
     public void load(MappingConnection connection) {
-        connection.addTo(this);
+        if(!isLoaded(connection)) {
+            connection.addTo(this);
+        }
+    }
+
+    private boolean isLoaded(MappingConnection connection) {
+        return false;
+        // TODO
     }
 
     public void load(Collection<MappingConnection> connections) {

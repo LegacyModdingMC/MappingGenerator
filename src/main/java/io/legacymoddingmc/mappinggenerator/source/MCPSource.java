@@ -40,25 +40,21 @@ public class MCPSource implements IMappingSource {
     private final Type type;
 
     @Override
-    public void generateExtraParameters(MappingCollection mappings, Map<String, String> out) {
+    public void generateExtraParameters(Project project, MappingCollection mappings, Map<String, String> out) {
+        SrgConnection srgConn = new SrgConnection(project, gameVersion);
+        MCPConnection mcpConn = new MCPConnection(project, gameVersion, mappingVersion);
+
         if(type == Type.PARAMETERS) {
-            generateExtraParametersFromParameters(mappings, out);
+            generateExtraParametersFromParameters(mappings, mcpConn, out);
         } else if(type == Type.METHOD_COMMENTS) {
-            generateExtraParametersFromMethodComments(mappings, out);
+            mappings.load(srgConn);
+            generateExtraParametersFromMethodComments(mappings, mcpConn, out);
         }
     }
 
-    @Override
-    public Collection<MappingConnection> getNecessaryMappingConnections(Project project) {
-        return Arrays.asList(
-                new SrgConnection(project, gameVersion),
-                new MCPConnection(project, gameVersion, mappingVersion)
-        );
-    }
-
     @SneakyThrows
-    private void generateExtraParametersFromParameters(MappingCollection mappings, Map<String, String> out) {
-        try(CSVReader reader = Utilities.createCsvReader(new File(mappings.getDir(gameVersion, mappingVersion), "parameters.csv"))) {
+    private void generateExtraParametersFromParameters(MappingCollection mappings, MCPConnection mcpConn, Map<String, String> out) {
+        try(CSVReader reader = Utilities.createCsvReader(new File(mcpConn.getDir(), "parameters.csv"))) {
             for(String[] line : reader) {
                 out.put(line[0], line[1]);
             }
@@ -66,22 +62,26 @@ public class MCPSource implements IMappingSource {
     }
 
     @SneakyThrows
-    private void generateExtraParametersFromMethodComments(MappingCollection mappings, Map<String, String> out) {
-        try(CSVReader reader = Utilities.createCsvReader(new File(mappings.getDir(gameVersion, mappingVersion), "methods.csv"))) {
+    private void generateExtraParametersFromMethodComments(MappingCollection mappings, MCPConnection mcpConn, Map<String, String> out) {
+        try(CSVReader reader = Utilities.createCsvReader(new File(mcpConn.getDir(), "methods.csv"))) {
             Method methodId = new Method(null, null, null);
             for(String[] line : reader) {
                 String desc = line[3];
                 if(desc.contains("Args:")) {
                     String argDesc = desc.substring(desc.indexOf("Args:"));
                     methodId.setMethod(line[0].split("_")[1]);
-                    Method notch = mappings.translate(methodId, "1.7.10", "methodId", "notch");
+                    Method notch = mappings.multiTranslate(methodId, "1.7.10", "srgId", "notch").iterator().next();
                     String descriptor = notch.getDesc();
                     int numParams = BytecodeUtils.countDescriptorParams(descriptor);
                     List<String> splitDesc = splitDescription(argDesc.substring(5));
                     List<Integer> parameterIndexes = BytecodeUtils.getParameterIndexes(descriptor, mappings.getJarInfo("1.7.10").getMethodInfo(notch).isStatic());
-                    for(int i = 0; i < splitDesc.size(); i++) {
-                        String srgParam = "p_" + methodId.getMethod() + "_" + parameterIndexes.get(i) + "_";
-                        out.put(srgParam, splitDesc.get(i));
+                    if(numParams == splitDesc.size()) {
+                        for (int i = 0; i < splitDesc.size(); i++) {
+                            String srgParam = "p_" + methodId.getMethod() + "_" + parameterIndexes.get(i) + "_";
+                            out.put(srgParam, splitDesc.get(i));
+                        }
+                    } else {
+                        // ignore mismatching comments (none of them are interesting anyway, I checked)
                     }
                 }
             }

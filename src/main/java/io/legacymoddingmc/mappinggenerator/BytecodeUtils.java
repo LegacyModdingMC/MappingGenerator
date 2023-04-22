@@ -9,7 +9,7 @@ public class BytecodeUtils {
     private static final Pattern DESCRIPTOR = Pattern.compile("\\[*L[^;]+;|\\[*[ZBCSIFDJ]|[ZBCSIFDJ]");
 
     public static int countDescriptorParams(String descriptor) {
-        throw new RuntimeException("TODO");
+        return splitDescriptorParams(descriptor).size();
     }
 
     public static List<String> splitDescriptorParams(String desc) {

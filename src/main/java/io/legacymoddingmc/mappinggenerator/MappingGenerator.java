@@ -39,8 +39,7 @@ public class MappingGenerator {
         Map<String, String> extraParameters = new HashMap<>();
 
         for(IMappingSource source : sources) {
-            mappings.load(source.getNecessaryMappingConnections(project));
-            source.generateExtraParameters(mappings, extraParameters);
+            source.generateExtraParameters(project, mappings, extraParameters);
         }
 
         writeMappings(extraParameters, out);

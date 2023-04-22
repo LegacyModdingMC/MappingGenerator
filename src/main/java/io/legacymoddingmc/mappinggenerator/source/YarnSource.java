@@ -14,13 +14,11 @@ import java.util.Map;
 public class YarnSource implements IMappingSource {
 
     @Getter
-    private final String gameVersion;
-    @Getter
     private final String mappingVersion;
 
     @Override
     public void generateExtraParameters(Project project, MappingCollection mappings, Map<String, String> out) {
-        YarnConnection yarnConn = new YarnConnection(project, gameVersion, mappingVersion);
+        YarnConnection yarnConn = new YarnConnection(project, mappingVersion);
         mappings.load(yarnConn);
 
         for(Parameter notch : mappings.getParameters("1.7.10", "notch")) {

@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 public class SrgConnection implements MappingConnection {
 
-    private final String gameVersion;
+    private final String gameVersion; // 1.7.10
 
     private final File dir;
     private String url;

@@ -25,9 +25,9 @@ import java.util.List;
 public class MCPConnection implements MappingConnection {
 
     @Getter
-    private final String gameVersion;
+    private final String gameVersion; // 1.7.10
     @Getter
-    private final String mappingVersion;
+    private final String mappingVersion; // stable_12
     private final File dir;
 
     private final Project project;
@@ -58,7 +58,6 @@ public class MCPConnection implements MappingConnection {
                 a.from(project.zipTree(outFile));
                 a.into(dir);
             });
-            System.out.println("hmm");
             outFile.delete();
         }
         return dir;

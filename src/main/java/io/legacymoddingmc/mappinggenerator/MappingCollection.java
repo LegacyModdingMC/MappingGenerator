@@ -60,15 +60,19 @@ public class MappingCollection {
     }
 
     public <T> Collection<T> getNames(String version, String language, Class<T> classOfT) {
+        Collection<T> best = Collections.emptyList();
         for(val e : getVersionMap(version).entrySet()) {
             String src = e.getKey().getLeft();
             String dest = e.getKey().getRight();
             Mapping mapping = e.getValue();
             if(src.equals(language)) {
-                return mapping.getMapForClass(classOfT).keySet();
+                val candidate = mapping.getMapForClass(classOfT).keySet();
+                if(best.size() < candidate.size()) {
+                    best = candidate;
+                }
             }
         }
-        return Collections.emptyList();
+        return best;
     }
 
     public void put(String version, Mapping... mappings) {

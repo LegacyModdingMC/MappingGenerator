@@ -4,6 +4,7 @@ import com.gtnewhorizons.retrofuturagradle.util.Utilities;
 import io.legacymoddingmc.mappinggenerator.download.MCPConnection;
 import io.legacymoddingmc.mappinggenerator.download.SrgConnection;
 import io.legacymoddingmc.mappinggenerator.name.Method;
+import io.legacymoddingmc.mappinggenerator.name.Parameter;
 import io.legacymoddingmc.mappinggenerator.source.IMappingSource;
 import org.gradle.api.Project;
 
@@ -44,20 +45,25 @@ public class MappingGenerator {
         }
 
         Set<String> defaultParameterNames = getDefaultParameterNames(mcpConn);
-        Set<String> methodIds = mappings
-                .getNames("1.7.10", "srgId", Method.class)
-                .stream()
-                .map(Method::getMethod)
-                .collect(Collectors.toSet());
+        Set<String> allSrgParameterNames = getAllSrgParameterNames(mappings);
 
         // Remove useless entries
-        extraParameters.entrySet().removeIf(e -> defaultParameterNames.contains(e.getKey()) || !methodIds.contains(e.getKey().split("_")[1]));
+        extraParameters.entrySet().removeIf(e -> defaultParameterNames.contains(e.getKey()) || !allSrgParameterNames.contains(e.getKey()));
 
         int totalParameters = getTotalParameters(mappings);
         int named = (defaultParameterNames.size() + extraParameters.size());
         System.out.println("Parameter coverage: " + defaultParameterNames.size() + " -> " + named + " / " + totalParameters + " (" + ((named / (double)totalParameters) * 100.0) + "%)");
 
         writeMappings(extraParameters, out);
+    }
+
+    private Set<String> getAllSrgParameterNames(MappingCollection mappings) {
+        return mappings
+                .getNames("1.7.10", "srg", Parameter.class)
+                .stream()
+                .map(Parameter::getParameter)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
     }
 
     private int getTotalParameters(MappingCollection mappings) {

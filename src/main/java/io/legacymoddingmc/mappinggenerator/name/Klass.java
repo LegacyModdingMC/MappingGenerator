@@ -4,9 +4,6 @@ import com.gtnewhorizons.retrofuturagradle.shadow.org.apache.commons.lang3.Strin
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-/**
- * :]
- */
 @Data
 @AllArgsConstructor
 public class Klass implements Name {

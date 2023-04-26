@@ -49,7 +49,7 @@ public class MappingGeneratorPlugin implements Plugin<Project> {
                 generator.addSource(new YarnSource("1.7.10+latest"));
                 generator.generateExtraParameters(outFile);
             });
-            task.dependsOn("downloadVanillaJars", "generateForgeSrgMappings");
+            task.dependsOn("downloadVanillaJars", "patchDecompiledJar");
         });
         project.getTasks().getByName("remapDecompiledJar").dependsOn(taskGenerateExtraMappings);
 

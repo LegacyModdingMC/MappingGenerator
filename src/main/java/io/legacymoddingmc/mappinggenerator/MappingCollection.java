@@ -3,6 +3,7 @@ package io.legacymoddingmc.mappinggenerator;
 import com.gtnewhorizons.retrofuturagradle.shadow.org.apache.commons.lang3.tuple.Pair;
 import io.legacymoddingmc.mappinggenerator.connection.MappingConnection;
 import lombok.val;
+import org.gradle.api.Project;
 
 import java.io.File;
 import java.util.*;
@@ -10,10 +11,15 @@ import java.util.*;
 public class MappingCollection {
 
     private final Map<String, JarInfo> jarInfos = new HashMap<>();
+    private final Map<String, SourceInfo> sourceInfos = new HashMap<>();
     private final Map<String, Map<Pair<String, String>, Mapping>> mappings = new HashMap<>();
 
     public void addVanillaJar(String gameVersion, File jar) {
         jarInfos.computeIfAbsent(gameVersion, x -> new JarInfo(gameVersion)).load(jar);
+    }
+
+    public void addDecompiledSource(Project project, String gameVersion, File jar) {
+        sourceInfos.computeIfAbsent(gameVersion, x -> new SourceInfo(gameVersion)).load(jar, project);
     }
 
     public JarInfo getJarInfo(String version) {

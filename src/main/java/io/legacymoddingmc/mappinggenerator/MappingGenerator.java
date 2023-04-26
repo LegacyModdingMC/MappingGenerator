@@ -1,5 +1,7 @@
 package io.legacymoddingmc.mappinggenerator;
 
+import com.gtnewhorizons.retrofuturagradle.mcp.PatchSourcesTask;
+import com.gtnewhorizons.retrofuturagradle.mcp.RemapSourceJarTask;
 import com.gtnewhorizons.retrofuturagradle.util.Utilities;
 import io.legacymoddingmc.mappinggenerator.connection.MCPConnection;
 import io.legacymoddingmc.mappinggenerator.connection.SrgConnection;
@@ -32,6 +34,11 @@ public class MappingGenerator {
 
         mappings.addVanillaJar("1.7.10", Utilities.getCacheDir(project, "mc-vanilla", "1.7.10", "client.jar"));
         mappings.addVanillaJar("1.7.10", Utilities.getCacheDir(project, "mc-vanilla", "1.7.10", "server.jar"));
+
+        PatchSourcesTask taskPatchDecompiledJar = (PatchSourcesTask)project.getTasks().getByName("patchDecompiledJar");
+        File patchedJar = taskPatchDecompiledJar.getOutputJar().get().getAsFile();
+
+        mappings.addDecompiledSource(project, "1.7.10", patchedJar);
 
         MCPConnection mcpConn = new MCPConnection(project, "1.7.10", "stable_12");
 

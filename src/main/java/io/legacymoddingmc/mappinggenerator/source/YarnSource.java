@@ -1,7 +1,7 @@
 package io.legacymoddingmc.mappinggenerator.source;
 
 import io.legacymoddingmc.mappinggenerator.MappingCollection;
-import io.legacymoddingmc.mappinggenerator.download.YarnConnection;
+import io.legacymoddingmc.mappinggenerator.connection.YarnConnection;
 import io.legacymoddingmc.mappinggenerator.name.Parameter;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

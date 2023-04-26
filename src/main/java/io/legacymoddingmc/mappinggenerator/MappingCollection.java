@@ -1,9 +1,7 @@
 package io.legacymoddingmc.mappinggenerator;
 
-import com.gtnewhorizons.retrofuturagradle.shadow.com.google.common.collect.Multimap;
 import com.gtnewhorizons.retrofuturagradle.shadow.org.apache.commons.lang3.tuple.Pair;
-import io.legacymoddingmc.mappinggenerator.download.MappingConnection;
-import io.legacymoddingmc.mappinggenerator.name.*;
+import io.legacymoddingmc.mappinggenerator.connection.MappingConnection;
 import lombok.val;
 
 import java.io.File;

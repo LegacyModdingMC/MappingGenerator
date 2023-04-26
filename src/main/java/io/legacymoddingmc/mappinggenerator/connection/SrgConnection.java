@@ -1,4 +1,4 @@
-package io.legacymoddingmc.mappinggenerator.download;
+package io.legacymoddingmc.mappinggenerator.connection;
 
 import static io.legacymoddingmc.mappinggenerator.JavaHelper.replaceLastSlashWithSpace;
 import static io.legacymoddingmc.mappinggenerator.JavaHelper.getLast;

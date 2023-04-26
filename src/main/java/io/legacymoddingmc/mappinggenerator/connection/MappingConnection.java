@@ -1,4 +1,4 @@
-package io.legacymoddingmc.mappinggenerator.download;
+package io.legacymoddingmc.mappinggenerator.connection;
 
 import io.legacymoddingmc.mappinggenerator.MappingCollection;
 

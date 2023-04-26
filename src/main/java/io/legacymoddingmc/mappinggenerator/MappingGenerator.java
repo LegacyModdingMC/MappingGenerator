@@ -1,8 +1,8 @@
 package io.legacymoddingmc.mappinggenerator;
 
 import com.gtnewhorizons.retrofuturagradle.util.Utilities;
-import io.legacymoddingmc.mappinggenerator.download.MCPConnection;
-import io.legacymoddingmc.mappinggenerator.download.SrgConnection;
+import io.legacymoddingmc.mappinggenerator.connection.MCPConnection;
+import io.legacymoddingmc.mappinggenerator.connection.SrgConnection;
 import io.legacymoddingmc.mappinggenerator.name.Method;
 import io.legacymoddingmc.mappinggenerator.name.Parameter;
 import io.legacymoddingmc.mappinggenerator.source.IMappingSource;

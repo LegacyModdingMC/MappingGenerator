@@ -1,4 +1,4 @@
-package io.legacymoddingmc.mappinggenerator.download;
+package io.legacymoddingmc.mappinggenerator.connection;
 
 import com.gtnewhorizons.retrofuturagradle.shadow.com.google.common.base.Preconditions;
 import com.gtnewhorizons.retrofuturagradle.shadow.com.google.gson.Gson;
@@ -11,10 +11,8 @@ import io.legacymoddingmc.mappinggenerator.name.*;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.val;
-import lombok.var;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.WorkResult;
-import org.gradle.cache.internal.Loader;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -23,7 +21,6 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import static io.legacymoddingmc.mappinggenerator.MappingHelper.remapDesc;

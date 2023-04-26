@@ -1,4 +1,4 @@
-package io.legacymoddingmc.mappinggenerator.download;
+package io.legacymoddingmc.mappinggenerator.connection;
 
 import com.gtnewhorizons.retrofuturagradle.shadow.com.google.common.base.Preconditions;
 import com.gtnewhorizons.retrofuturagradle.shadow.com.opencsv.CSVReader;

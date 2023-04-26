@@ -5,7 +5,7 @@ import io.legacymoddingmc.mappinggenerator.connection.MCPConnection;
 import io.legacymoddingmc.mappinggenerator.connection.SrgConnection;
 import io.legacymoddingmc.mappinggenerator.name.Method;
 import io.legacymoddingmc.mappinggenerator.name.Parameter;
-import io.legacymoddingmc.mappinggenerator.source.IMappingSource;
+import io.legacymoddingmc.mappinggenerator.source.MappingSource;
 import org.gradle.api.Project;
 
 import java.io.File;
@@ -17,13 +17,13 @@ import java.util.stream.Collectors;
 public class MappingGenerator {
 
     private final Project project;
-    private final List<IMappingSource> sources = new ArrayList<>();
+    private final List<MappingSource> sources = new ArrayList<>();
 
     public MappingGenerator(Project project) {
         this.project = project;
     }
 
-    public void addSource(IMappingSource source) {
+    public void addSource(MappingSource source) {
         sources.add(source);
     }
 
@@ -40,7 +40,7 @@ public class MappingGenerator {
 
         Map<String, String> extraParameters = new HashMap<>();
 
-        for(IMappingSource source : sources) {
+        for(MappingSource source : sources) {
             source.generateExtraParameters(project, mappings, extraParameters);
         }
 

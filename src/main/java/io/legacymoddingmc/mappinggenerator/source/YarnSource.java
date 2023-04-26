@@ -10,7 +10,7 @@ import org.gradle.api.Project;
 import java.util.Map;
 
 @RequiredArgsConstructor
-public class YarnSource implements IMappingSource {
+public class YarnSource implements MappingSource {
 
     @Getter
     private final String mappingVersion;

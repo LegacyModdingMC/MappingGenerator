@@ -5,6 +5,6 @@ import org.gradle.api.Project;
 
 import java.util.Map;
 
-public interface IMappingSource {
+public interface MappingSource {
     void generateExtraParameters(Project project, MappingCollection mappings, Map<String, String> out);
 }

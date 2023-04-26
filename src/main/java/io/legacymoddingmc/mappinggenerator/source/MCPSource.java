@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @RequiredArgsConstructor
-public class MCPSource implements IMappingSource {
+public class MCPSource implements MappingSource {
 
     public enum Type {
         PARAMETERS,

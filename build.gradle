@@ -31,6 +31,7 @@ repositories {
 
 dependencies {
     implementation 'com.gtnewhorizons:retrofuturagradle:1.2.7'
+    implementation files("${System.properties['java.home']}/../lib/tools.jar")
 }
 
 gradlePlugin {

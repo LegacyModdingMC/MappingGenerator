@@ -66,22 +66,13 @@ public class MappingGeneratorPlugin implements Plugin<Project> {
 
         val decompressedSourcesLocation = FileUtils.getFile(project.getBuildDir(), "mapping_generator", "src");
         val taskDecompressDecompiledSources = project.getTasks()
-                .register("decompressPatchedSources", Copy.class, task -> {
+                .register("decompressSrgSources", Copy.class, task -> {
                     PatchSourcesTask taskPatchDecompiledJar = (PatchSourcesTask)project.getTasks().getByName("patchDecompiledJar");
                     task.dependsOn(taskPatchDecompiledJar);
                     task.from(
                             project.zipTree(taskPatchDecompiledJar.getOutputJar()),
                             subset -> { subset.include("**/*.java"); });
-                    task.from(
-                            project.zipTree(taskPatchDecompiledJar.getOutputJar()),
-                            subset -> { subset.exclude("**/*.java"); });
-                    task.eachFile(
-                            fcd -> {
-                                fcd.setRelativePath(
-                                        fcd.getRelativePath()
-                                                .prepend(fcd.getName().endsWith(".java") ? "java" : "resources"));
-                            });
-                    task.into(decompressedSourcesLocation);
+                    task.into(new File(decompressedSourcesLocation, "java"));
                 });
         project.getTasks().getByName("generateExtraMappings").dependsOn(taskDecompressDecompiledSources);
 
@@ -93,16 +84,12 @@ public class MappingGeneratorPlugin implements Plugin<Project> {
 
         MinecraftTasks mcTasks = (MinecraftTasks)project.getExtensions().getByName("minecraftTasks");
 
-        val unpatchedMcSources = sourceSets.create("unpatchedMc", sourceSet -> {
+        val srgMcSources = sourceSets.create("srgMc", sourceSet -> {
             sourceSet.setCompileClasspath(patchedConfiguration.plus(mcTasks.getLwjgl2Configuration()));
             sourceSet.setRuntimeClasspath(patchedConfiguration);
             sourceSet.java(
                     java -> java.setSrcDirs(
                             project.files(new File(decompressedSourcesLocation, "java"))
-                                    .builtBy(taskDecompressDecompiledSources)));
-            sourceSet.resources(
-                    java -> java.setSrcDirs(
-                            project.files(new File(decompressedSourcesLocation, "resources"))
                                     .builtBy(taskDecompressDecompiledSources)));
         });
 
@@ -120,15 +107,14 @@ public class MappingGeneratorPlugin implements Plugin<Project> {
         project.getConfigurations().getByName(apiSet.getCompileClasspathConfigurationName())
                 .extendsFrom(project.getConfigurations().getByName(mainSet.getCompileClasspathConfigurationName()));*/
 
-        val taskBuildUnpatchedMc = project.getTasks()
-                .named(unpatchedMcSources.getCompileJavaTaskName(), JavaCompile.class, task -> {
+        val taskBuildSrgMc = project.getTasks()
+                .named(srgMcSources.getCompileJavaTaskName(), JavaCompile.class, task -> {
                     task.dependsOn(taskDecompressDecompiledSources);
                     configureMcJavaCompilation(task, (MinecraftExtension)project.getExtensions().getByName("minecraft"));
-                    task.getOptions().setDebug(true);
                 });
-        project.getTasks().named(unpatchedMcSources.getProcessResourcesTaskName())
+        project.getTasks().named(srgMcSources.getProcessResourcesTaskName())
                 .configure(task -> task.dependsOn(taskDecompressDecompiledSources));
-        project.getTasks().getByName("generateExtraMappings").dependsOn(taskBuildUnpatchedMc);
+        project.getTasks().getByName("generateExtraMappings").dependsOn(taskBuildSrgMc);
 
 
         IMinecraftyExtension minecraft = (IMinecraftyExtension)project.getExtensions().getByName("minecraft");

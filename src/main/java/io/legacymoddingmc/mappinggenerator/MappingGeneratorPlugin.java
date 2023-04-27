@@ -4,12 +4,23 @@
 package io.legacymoddingmc.mappinggenerator;
 
 import com.gtnewhorizons.retrofuturagradle.IMinecraftyExtension;
+import com.gtnewhorizons.retrofuturagradle.MinecraftExtension;
+import com.gtnewhorizons.retrofuturagradle.mcp.PatchSourcesTask;
 import com.gtnewhorizons.retrofuturagradle.mcp.RemapSourceJarTask;
+import com.gtnewhorizons.retrofuturagradle.minecraft.MinecraftTasks;
+import com.gtnewhorizons.retrofuturagradle.shadow.org.apache.commons.io.FileUtils;
 import io.legacymoddingmc.mappinggenerator.source.MCPSource;
 import io.legacymoddingmc.mappinggenerator.source.YarnSource;
+import lombok.val;
+import org.gradle.api.JavaVersion;
 import org.gradle.api.Project;
 import org.gradle.api.Plugin;
+import org.gradle.api.plugins.JavaPluginExtension;
+import org.gradle.api.tasks.Copy;
+import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.TaskProvider;
+import org.gradle.api.tasks.compile.JavaCompile;
 
 import java.io.File;
 
@@ -28,7 +39,7 @@ public class MappingGeneratorPlugin implements Plugin<Project> {
                     File remappedJar = taskRemapDecompiledJar.getOutputJar().get().getAsFile();
                     if(remappedJar.isFile()) {
                         System.out.println("Deleting " + remappedJar.getName() + " to force the decompilation chain to re-run!");
-                        remappedJar.delete();
+                        //remappedJar.delete();
                     }
                 } else {
                     project.getTasks().getByName("generateExtraMappings").setEnabled(false);
@@ -53,7 +64,84 @@ public class MappingGeneratorPlugin implements Plugin<Project> {
         });
         project.getTasks().getByName("remapDecompiledJar").dependsOn(taskGenerateExtraMappings);
 
+        val decompressedSourcesLocation = FileUtils.getFile(project.getBuildDir(), "mapping_generator", "src");
+        val taskDecompressDecompiledSources = project.getTasks()
+                .register("decompressPatchedSources", Copy.class, task -> {
+                    PatchSourcesTask taskPatchDecompiledJar = (PatchSourcesTask)project.getTasks().getByName("patchDecompiledJar");
+                    task.dependsOn(taskPatchDecompiledJar);
+                    task.from(
+                            project.zipTree(taskPatchDecompiledJar.getOutputJar()),
+                            subset -> { subset.include("**/*.java"); });
+                    task.from(
+                            project.zipTree(taskPatchDecompiledJar.getOutputJar()),
+                            subset -> { subset.exclude("**/*.java"); });
+                    task.eachFile(
+                            fcd -> {
+                                fcd.setRelativePath(
+                                        fcd.getRelativePath()
+                                                .prepend(fcd.getName().endsWith(".java") ? "java" : "resources"));
+                            });
+                    task.into(decompressedSourcesLocation);
+                });
+        project.getTasks().getByName("generateExtraMappings").dependsOn(taskDecompressDecompiledSources);
+
+
+        val patchedConfiguration = project.getConfigurations().getByName("patchedMinecraft");
+
+        final SourceSetContainer sourceSets = project.getExtensions().getByType(SourceSetContainer.class);
+        final JavaPluginExtension javaExt = project.getExtensions().getByType(JavaPluginExtension.class);
+
+        MinecraftTasks mcTasks = (MinecraftTasks)project.getExtensions().getByName("minecraftTasks");
+
+        val unpatchedMcSources = sourceSets.create("unpatchedMc", sourceSet -> {
+            sourceSet.setCompileClasspath(patchedConfiguration.plus(mcTasks.getLwjgl2Configuration()));
+            sourceSet.setRuntimeClasspath(patchedConfiguration);
+            sourceSet.java(
+                    java -> java.setSrcDirs(
+                            project.files(new File(decompressedSourcesLocation, "java"))
+                                    .builtBy(taskDecompressDecompiledSources)));
+            sourceSet.resources(
+                    java -> java.setSrcDirs(
+                            project.files(new File(decompressedSourcesLocation, "resources"))
+                                    .builtBy(taskDecompressDecompiledSources)));
+        });
+
+        /*final SourceSet mainSet = sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME);
+        final SourceSet testSet = sourceSets.getByName(SourceSet.TEST_SOURCE_SET_NAME);
+        final SourceSet apiSet = javaExt.getSourceSets().create("api", set -> {
+            set.setCompileClasspath(patchedConfiguration.plus(unpatchedMcSources.getOutput()));
+            set.setRuntimeClasspath(patchedConfiguration);
+        });
+        mainSet.setCompileClasspath(mainSet.getCompileClasspath().plus(apiSet.getOutput()));
+        mainSet.setRuntimeClasspath(mainSet.getRuntimeClasspath().plus(apiSet.getOutput()));
+        testSet.setCompileClasspath(testSet.getCompileClasspath().plus(apiSet.getOutput()));
+        testSet.setRuntimeClasspath(testSet.getRuntimeClasspath().plus(apiSet.getOutput()));
+
+        project.getConfigurations().getByName(apiSet.getCompileClasspathConfigurationName())
+                .extendsFrom(project.getConfigurations().getByName(mainSet.getCompileClasspathConfigurationName()));*/
+
+        val taskBuildUnpatchedMc = project.getTasks()
+                .named(unpatchedMcSources.getCompileJavaTaskName(), JavaCompile.class, task -> {
+                    task.dependsOn(taskDecompressDecompiledSources);
+                    configureMcJavaCompilation(task, (MinecraftExtension)project.getExtensions().getByName("minecraft"));
+                    task.getOptions().setDebug(true);
+                });
+        project.getTasks().named(unpatchedMcSources.getProcessResourcesTaskName())
+                .configure(task -> task.dependsOn(taskDecompressDecompiledSources));
+        project.getTasks().getByName("generateExtraMappings").dependsOn(taskBuildUnpatchedMc);
+
+
         IMinecraftyExtension minecraft = (IMinecraftyExtension)project.getExtensions().getByName("minecraft");
         minecraft.getExtraParamsCsvs().from(outFile);
+    }
+
+    private static void configureMcJavaCompilation(JavaCompile task, MinecraftExtension mcExt) {
+        task.getModularity().getInferModulePath().set(false);
+        task.getOptions().setEncoding("UTF-8");
+        task.getOptions().setFork(true);
+        task.getOptions().setWarnings(false);
+        task.setSourceCompatibility(JavaVersion.VERSION_1_8.toString());
+        task.setTargetCompatibility(JavaVersion.VERSION_1_8.toString());
+        task.getJavaCompiler().set(mcExt.getToolchainCompiler());
     }
 }

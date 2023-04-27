@@ -12,16 +12,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 @RequiredArgsConstructor
 public class JarInfo {
-
-    private final String gameVersion;
 
     private final Map<String, ClassInfo> data = new HashMap<>();
 
@@ -62,6 +58,9 @@ public class JarInfo {
         public static class MethodInfo {
             @Getter
             private final boolean isStatic;
+
+            @Getter
+            private final List<String> variables = new ArrayList<>();
         }
     }
 

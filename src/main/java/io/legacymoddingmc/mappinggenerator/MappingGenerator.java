@@ -1,5 +1,6 @@
 package io.legacymoddingmc.mappinggenerator;
 
+import com.gtnewhorizons.retrofuturagradle.mcp.DeobfuscateTask;
 import com.gtnewhorizons.retrofuturagradle.mcp.PatchSourcesTask;
 import com.gtnewhorizons.retrofuturagradle.mcp.RemapSourceJarTask;
 import com.gtnewhorizons.retrofuturagradle.util.Utilities;
@@ -38,7 +39,16 @@ public class MappingGenerator {
         PatchSourcesTask taskPatchDecompiledJar = (PatchSourcesTask)project.getTasks().getByName("patchDecompiledJar");
         File patchedJar = taskPatchDecompiledJar.getOutputJar().get().getAsFile();
 
-        mappings.addDecompiledSource(project, "1.7.10", patchedJar);
+        DeobfuscateTask taskDobfuscateMergedJarToSrg = (DeobfuscateTask)project.getTasks().getByName("deobfuscateMergedJarToSrg");
+        File deobfJar = taskDobfuscateMergedJarToSrg.getOutputJar().get().getAsFile();
+
+        long t0 = System.nanoTime();
+        JarInfo deobfJarInfo = new JarInfo();
+        deobfJarInfo.load(deobfJar);
+        long t1 = System.nanoTime();
+        System.out.println("Loaded deobf jar info in " + (t1-t0)/1_000_000_000.0 + "s");
+
+        //mappings.addDecompiledSource(project, "1.7.10", patchedJar);
 
         MCPConnection mcpConn = new MCPConnection(project, "1.7.10", "stable_12");
 
@@ -48,7 +58,7 @@ public class MappingGenerator {
         Map<String, String> extraParameters = new HashMap<>();
 
         for(MappingSource source : sources) {
-            source.generateExtraParameters(project, mappings, extraParameters);
+            //source.generateExtraParameters(project, mappings, extraParameters);
         }
 
         Set<String> defaultParameterNames = getDefaultParameterNames(mcpConn);

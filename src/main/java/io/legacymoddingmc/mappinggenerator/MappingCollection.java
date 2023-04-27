@@ -15,7 +15,7 @@ public class MappingCollection {
     private final Map<String, Map<Pair<String, String>, Mapping>> mappings = new HashMap<>();
 
     public void addVanillaJar(String gameVersion, File jar) {
-        jarInfos.computeIfAbsent(gameVersion, x -> new JarInfo(gameVersion)).load(jar);
+        jarInfos.computeIfAbsent(gameVersion, x -> new JarInfo()).load(jar);
     }
 
     public void addDecompiledSource(Project project, String gameVersion, File jar) {

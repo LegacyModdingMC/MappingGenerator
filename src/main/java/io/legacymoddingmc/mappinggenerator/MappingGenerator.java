@@ -2,7 +2,6 @@ package io.legacymoddingmc.mappinggenerator;
 
 import com.gtnewhorizons.retrofuturagradle.mcp.DeobfuscateTask;
 import com.gtnewhorizons.retrofuturagradle.mcp.PatchSourcesTask;
-import com.gtnewhorizons.retrofuturagradle.mcp.RemapSourceJarTask;
 import com.gtnewhorizons.retrofuturagradle.util.Utilities;
 import io.legacymoddingmc.mappinggenerator.connection.MCPConnection;
 import io.legacymoddingmc.mappinggenerator.connection.SrgConnection;
@@ -48,7 +47,7 @@ public class MappingGenerator {
         long t1 = System.nanoTime();
         System.out.println("Loaded deobf jar info in " + (t1-t0)/1_000_000_000.0 + "s");
 
-        //mappings.addDecompiledSource(project, "1.7.10", patchedJar);
+        mappings.addSrgForgeSource(project, "1.7.10", patchedJar);
 
         MCPConnection mcpConn = new MCPConnection(project, "1.7.10", "stable_12");
 
@@ -58,7 +57,7 @@ public class MappingGenerator {
         Map<String, String> extraParameters = new HashMap<>();
 
         for(MappingSource source : sources) {
-            //source.generateExtraParameters(project, mappings, extraParameters);
+            source.generateExtraParameters(project, mappings, extraParameters);
         }
 
         Set<String> defaultParameterNames = getDefaultParameterNames(mcpConn);
@@ -67,11 +66,21 @@ public class MappingGenerator {
         // Remove useless entries
         extraParameters.entrySet().removeIf(e -> defaultParameterNames.contains(e.getKey()) || !allSrgParameterNames.contains(e.getKey()));
 
+        extraParameters = extraParameters.entrySet().stream().collect(Collectors.toMap(
+            e -> e.getKey(),
+            e -> e.getValue() + (isConflicting(e.getKey(), e.getValue(), mappings) ? "_" : "")
+        ));
+
         int totalParameters = getTotalParameters(mappings);
         int named = (defaultParameterNames.size() + extraParameters.size());
         System.out.println("Parameter coverage: " + defaultParameterNames.size() + " -> " + named + " / " + totalParameters + " (" + ((named / (double)totalParameters) * 100.0) + "%)");
 
         writeMappings(extraParameters, out);
+    }
+
+    private boolean isConflicting(String key, String value, MappingCollection mappings) {
+        String srgId = key.split("_")[1];
+        return mappings.getForgeLocalVariables("1.7.10", srgId).contains(value);
     }
 
     private Set<String> getAllSrgParameterNames(MappingCollection mappings) {

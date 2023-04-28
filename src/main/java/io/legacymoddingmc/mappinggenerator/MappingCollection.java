@@ -2,6 +2,7 @@ package io.legacymoddingmc.mappinggenerator;
 
 import com.gtnewhorizons.retrofuturagradle.shadow.org.apache.commons.lang3.tuple.Pair;
 import io.legacymoddingmc.mappinggenerator.connection.MappingConnection;
+import io.legacymoddingmc.mappinggenerator.name.Method;
 import lombok.val;
 import org.gradle.api.Project;
 
@@ -11,15 +12,15 @@ import java.util.*;
 public class MappingCollection {
 
     private final Map<String, JarInfo> jarInfos = new HashMap<>();
-    private final Map<String, SourceInfo> sourceInfos = new HashMap<>();
+    private final Map<String, SourceInfo> forgeSrgSourceInfos = new HashMap<>();
     private final Map<String, Map<Pair<String, String>, Mapping>> mappings = new HashMap<>();
 
     public void addVanillaJar(String gameVersion, File jar) {
         jarInfos.computeIfAbsent(gameVersion, x -> new JarInfo()).load(jar);
     }
 
-    public void addDecompiledSource(Project project, String gameVersion, File jar) {
-        sourceInfos.computeIfAbsent(gameVersion, x -> new SourceInfo()).load(jar);
+    public void addSrgForgeSource(Project project, String gameVersion, File jar) {
+        forgeSrgSourceInfos.computeIfAbsent(gameVersion, x -> new SourceInfo()).load(jar);
     }
 
     public JarInfo getJarInfo(String version) {
@@ -100,5 +101,16 @@ public class MappingCollection {
         for(MappingConnection connection : connections) {
             load(connection);
         }
+    }
+
+    public Collection<String> getForgeLocalVariables(String gameVersion, String methodSrgId) {
+        val si = forgeSrgSourceInfos.get(gameVersion);
+        val ret = new ArrayList<String>();
+        for(Method notch : new ArrayList<>(multiTranslate(new Method(null, methodSrgId, null), gameVersion, "srgId", "notch"))) {
+            Method srg = translate(notch, gameVersion, "notch", "srg");
+
+            ret.addAll(si.getMethodInfo(srg).getVariables());
+        }
+        return ret;
     }
 }

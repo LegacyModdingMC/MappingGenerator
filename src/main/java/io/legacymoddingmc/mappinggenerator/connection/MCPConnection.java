@@ -5,10 +5,7 @@ import com.gtnewhorizons.retrofuturagradle.shadow.com.opencsv.CSVReader;
 import com.gtnewhorizons.retrofuturagradle.shadow.org.apache.commons.io.FileUtils;
 import com.gtnewhorizons.retrofuturagradle.shadow.org.apache.commons.lang3.ObjectUtils;
 import com.gtnewhorizons.retrofuturagradle.util.Utilities;
-import io.legacymoddingmc.mappinggenerator.GradleUtils;
-import io.legacymoddingmc.mappinggenerator.JavaHelper;
-import io.legacymoddingmc.mappinggenerator.Mapping;
-import io.legacymoddingmc.mappinggenerator.MappingCollection;
+import io.legacymoddingmc.mappinggenerator.*;
 import io.legacymoddingmc.mappinggenerator.name.Field;
 import io.legacymoddingmc.mappinggenerator.name.Method;
 import io.legacymoddingmc.mappinggenerator.name.Parameter;
@@ -66,9 +63,9 @@ public class MCPConnection implements MappingConnection {
     @Override
     public void addTo(MappingCollection mappings) {
         getDir();
-        val methods = readCSV(new File(dir, "methods.csv"));
-        val fields = readCSV(new File(dir, "fields.csv"));
-        val params = readCSV(new File(dir, "params.csv"));
+        val methods = IOHelper.readCSV(new File(dir, "methods.csv"));
+        val fields = IOHelper.readCSV(new File(dir, "fields.csv"));
+        val params = IOHelper.readCSV(new File(dir, "params.csv"));
         
         val mapping = new Mapping("srg", "mcp");
         
@@ -121,12 +118,5 @@ public class MCPConnection implements MappingConnection {
         }
 
         mappings.put(gameVersion, mapping, mapping.inverse());
-    }
-
-    @SneakyThrows
-    public static List<String[]> readCSV(File file) {
-        try(CSVReader reader = Utilities.createCsvReader(file)) {
-            return reader.readAll();
-        }
     }
 }

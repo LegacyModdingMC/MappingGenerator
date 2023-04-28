@@ -120,7 +120,7 @@ public class MappingGenerator {
     }
 
     private Map<String, String> getDefaultParameterNameMap(MCPConnection mcpConn) {
-        return MCPConnection
+        return IOHelper
                 .readCSV(new File(mcpConn.getDir(), "params.csv"))
                 .stream()
                 .collect(Collectors.toMap(l -> l[0], l -> l[1]));

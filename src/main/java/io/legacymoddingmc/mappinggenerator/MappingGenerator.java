@@ -1,5 +1,7 @@
 package io.legacymoddingmc.mappinggenerator;
 
+import static io.legacymoddingmc.mappinggenerator.connection.SrgConnection.toSrgId;
+
 import com.gtnewhorizons.retrofuturagradle.mcp.DeobfuscateTask;
 import com.gtnewhorizons.retrofuturagradle.mcp.PatchSourcesTask;
 import com.gtnewhorizons.retrofuturagradle.util.Utilities;
@@ -8,6 +10,8 @@ import io.legacymoddingmc.mappinggenerator.connection.SrgConnection;
 import io.legacymoddingmc.mappinggenerator.name.Method;
 import io.legacymoddingmc.mappinggenerator.name.Parameter;
 import io.legacymoddingmc.mappinggenerator.source.MappingSource;
+import lombok.val;
+import lombok.var;
 import org.gradle.api.Project;
 
 import java.io.File;
@@ -54,33 +58,55 @@ public class MappingGenerator {
         mappings.load(new SrgConnection(project, "1.7.10"));
         mappings.load(mcpConn);
 
-        Map<String, String> extraParameters = new HashMap<>();
+        final Map<String, String> extraParameters = new HashMap<>();
 
         for(MappingSource source : sources) {
             source.generateExtraParameters(project, mappings, extraParameters);
         }
 
-        Set<String> defaultParameterNames = getDefaultParameterNames(mcpConn);
+        Map<String, String> defaultParameterNameMap = getDefaultParameterNameMap(mcpConn);
         Set<String> allSrgParameterNames = getAllSrgParameterNames(mappings);
 
         // Remove useless entries
-        extraParameters.entrySet().removeIf(e -> defaultParameterNames.contains(e.getKey()) || !allSrgParameterNames.contains(e.getKey()));
+        extraParameters.entrySet().removeIf(e -> defaultParameterNameMap.keySet().contains(e.getKey()) || !allSrgParameterNames.contains(e.getKey()));
 
-        extraParameters = extraParameters.entrySet().stream().collect(Collectors.toMap(
-            e -> e.getKey(),
-            e -> e.getValue() + (isConflicting(e.getKey(), e.getValue(), mappings) ? "_" : "")
-        ));
+        Map<String, Set<String>> srgIdToParameterNames = new HashMap<>();
+        for(val name : allSrgParameterNames) {
+            srgIdToParameterNames.computeIfAbsent(toSrgId(name), x -> new HashSet<>()).add(name);
+        }
+
+        Map<String, Set<String>> extraParamsBySrgId = new HashMap<>();
+        for(val k : extraParameters.keySet()) {
+            extraParamsBySrgId.computeIfAbsent(toSrgId(k), x -> new HashSet<>()).add(k);
+        }
+        for(val e : extraParamsBySrgId.entrySet()) {
+            String srgId = e.getKey();
+            val params = JavaHelper.sorted(e.getValue());
+            val localVars = mappings.getForgeLocalVariables("1.7.10", srgId);
+            val allParams = srgIdToParameterNames.get(srgId);
+            for(val param : params) {
+                var name = extraParameters.get(param);
+                val otherParams = JavaHelper.getCollectionWithoutElement(allParams, param);
+                val otherNames = otherParams.stream().map(x -> defaultParameterNameMap.getOrDefault(x, extraParameters.get(x))).collect(Collectors.toList());
+                if(localVars.contains(name) || otherNames.contains(name)) {
+                    name += "_";
+                    extraParameters.put(param, name);
+                }
+                if(localVars.contains(name) || otherNames.contains(name)) {
+                    name += param.split("_")[2];
+                    extraParameters.put(param, name);
+                }
+                if(localVars.contains(name) || otherNames.contains(name)) {
+                    throw new IllegalStateException("Failed to avoid collision");
+                }
+            }
+        }
 
         int totalParameters = getTotalParameters(mappings);
-        int named = (defaultParameterNames.size() + extraParameters.size());
-        System.out.println("Parameter coverage: " + defaultParameterNames.size() + " -> " + named + " / " + totalParameters + " (" + ((named / (double)totalParameters) * 100.0) + "%)");
+        int named = (defaultParameterNameMap.size() + extraParameters.size());
+        System.out.println("Parameter coverage: " + defaultParameterNameMap.size() + " -> " + named + " / " + totalParameters + " (" + ((named / (double)totalParameters) * 100.0) + "%)");
 
         writeMappings(extraParameters, out);
-    }
-
-    private boolean isConflicting(String key, String value, MappingCollection mappings) {
-        String srgId = key.split("_")[1];
-        return mappings.getForgeLocalVariables("1.7.10", srgId).contains(value);
     }
 
     private Set<String> getAllSrgParameterNames(MappingCollection mappings) {
@@ -100,12 +126,11 @@ public class MappingGenerator {
         return total;
     }
 
-    private Set<String> getDefaultParameterNames(MCPConnection mcpConn) {
+    private Map<String, String> getDefaultParameterNameMap(MCPConnection mcpConn) {
         return MCPConnection
                 .readCSV(new File(mcpConn.getDir(), "params.csv"))
                 .stream()
-                .map(a -> a[0])
-                .collect(Collectors.toSet());
+                .collect(Collectors.toMap(l -> l[0], l -> l[1]));
     }
 
     private void writeMappings(Map<String, String> parameters, File out) {

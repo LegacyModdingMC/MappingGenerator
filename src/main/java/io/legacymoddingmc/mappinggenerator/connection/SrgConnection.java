@@ -151,4 +151,8 @@ public class SrgConnection implements MappingConnection {
         
         mappings.put(gameVersion, notch2srg, notch2srg.inverse(), srgId2notch);
     }
+
+    public static String toSrgId(String srgMethodOrParameterName) {
+        return srgMethodOrParameterName.split("_")[1];
+    }
 }

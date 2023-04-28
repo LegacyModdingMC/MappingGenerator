@@ -1,8 +1,8 @@
 package io.legacymoddingmc.mappinggenerator;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 
 public class JavaHelper {
     public static String replaceLastSlashWithSpace(String s) {
@@ -23,5 +23,13 @@ public class JavaHelper {
             matches.add(matcher.group());
         }
         return matches;
+    }
+
+    public static <T> Collection<T> getCollectionWithoutElement(Collection<T> collection, String excluded) {
+        return collection.stream().filter(x -> !x.equals(excluded)).collect(Collectors.toList());
+    }
+
+    public static <T> List<T> sorted(Collection<T> collection) {
+        return collection.stream().sorted().collect(Collectors.toList());
     }
 }

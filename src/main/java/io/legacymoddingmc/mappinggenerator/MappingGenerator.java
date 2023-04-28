@@ -42,15 +42,6 @@ public class MappingGenerator {
         PatchSourcesTask taskPatchDecompiledJar = (PatchSourcesTask)project.getTasks().getByName("patchDecompiledJar");
         File patchedJar = taskPatchDecompiledJar.getOutputJar().get().getAsFile();
 
-        DeobfuscateTask taskDobfuscateMergedJarToSrg = (DeobfuscateTask)project.getTasks().getByName("deobfuscateMergedJarToSrg");
-        File deobfJar = taskDobfuscateMergedJarToSrg.getOutputJar().get().getAsFile();
-
-        long t0 = System.nanoTime();
-        JarInfo deobfJarInfo = new JarInfo();
-        deobfJarInfo.load(deobfJar);
-        long t1 = System.nanoTime();
-        System.out.println("Loaded deobf jar info in " + (t1-t0)/1_000_000_000.0 + "s");
-
         mappings.addSrgForgeSource(project, "1.7.10", patchedJar);
 
         MCPConnection mcpConn = new MCPConnection(project, "1.7.10", "stable_12");
@@ -79,6 +70,8 @@ public class MappingGenerator {
         for(val k : extraParameters.keySet()) {
             extraParamsBySrgId.computeIfAbsent(toSrgId(k), x -> new HashSet<>()).add(k);
         }
+
+        // Rename parameters to avoid name collisions
         for(val e : extraParamsBySrgId.entrySet()) {
             String srgId = e.getKey();
             val params = JavaHelper.sorted(e.getValue());

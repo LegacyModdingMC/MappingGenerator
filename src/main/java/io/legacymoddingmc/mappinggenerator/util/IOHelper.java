@@ -1,4 +1,4 @@
-package io.legacymoddingmc.mappinggenerator;
+package io.legacymoddingmc.mappinggenerator.util;
 
 import com.gtnewhorizons.retrofuturagradle.shadow.com.opencsv.CSVReader;
 import com.gtnewhorizons.retrofuturagradle.util.Utilities;

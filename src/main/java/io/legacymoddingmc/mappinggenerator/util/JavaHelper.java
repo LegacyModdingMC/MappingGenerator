@@ -1,4 +1,4 @@
-package io.legacymoddingmc.mappinggenerator;
+package io.legacymoddingmc.mappinggenerator.util;
 
 import java.util.*;
 import java.util.regex.Matcher;

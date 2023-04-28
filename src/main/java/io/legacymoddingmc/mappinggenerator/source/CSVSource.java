@@ -1,6 +1,6 @@
 package io.legacymoddingmc.mappinggenerator.source;
 
-import io.legacymoddingmc.mappinggenerator.IOHelper;
+import io.legacymoddingmc.mappinggenerator.util.IOHelper;
 import io.legacymoddingmc.mappinggenerator.MappingCollection;
 import io.legacymoddingmc.mappinggenerator.connection.CSVConnection;
 import lombok.RequiredArgsConstructor;

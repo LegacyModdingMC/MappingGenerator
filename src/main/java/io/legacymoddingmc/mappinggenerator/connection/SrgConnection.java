@@ -1,7 +1,7 @@
 package io.legacymoddingmc.mappinggenerator.connection;
 
-import static io.legacymoddingmc.mappinggenerator.JavaHelper.replaceLastSlashWithSpace;
-import static io.legacymoddingmc.mappinggenerator.JavaHelper.getLast;
+import static io.legacymoddingmc.mappinggenerator.util.JavaHelper.replaceLastSlashWithSpace;
+import static io.legacymoddingmc.mappinggenerator.util.JavaHelper.getLast;
 
 import com.gtnewhorizons.retrofuturagradle.shadow.com.google.common.base.Preconditions;
 import com.gtnewhorizons.retrofuturagradle.shadow.org.apache.commons.io.FileUtils;
@@ -10,6 +10,10 @@ import io.legacymoddingmc.mappinggenerator.name.Field;
 import io.legacymoddingmc.mappinggenerator.name.Klass;
 import io.legacymoddingmc.mappinggenerator.name.Method;
 import io.legacymoddingmc.mappinggenerator.name.Parameter;
+import io.legacymoddingmc.mappinggenerator.util.BytecodeUtils;
+import io.legacymoddingmc.mappinggenerator.util.GradleUtils;
+import io.legacymoddingmc.mappinggenerator.util.JavaHelper;
+import io.legacymoddingmc.mappinggenerator.util.MappingHelper;
 import lombok.SneakyThrows;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.WorkResult;

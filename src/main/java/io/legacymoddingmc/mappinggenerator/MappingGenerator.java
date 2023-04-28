@@ -2,7 +2,6 @@ package io.legacymoddingmc.mappinggenerator;
 
 import static io.legacymoddingmc.mappinggenerator.connection.SrgConnection.toSrgId;
 
-import com.gtnewhorizons.retrofuturagradle.mcp.DeobfuscateTask;
 import com.gtnewhorizons.retrofuturagradle.mcp.PatchSourcesTask;
 import com.gtnewhorizons.retrofuturagradle.util.Utilities;
 import io.legacymoddingmc.mappinggenerator.connection.MCPConnection;
@@ -10,6 +9,9 @@ import io.legacymoddingmc.mappinggenerator.connection.SrgConnection;
 import io.legacymoddingmc.mappinggenerator.name.Method;
 import io.legacymoddingmc.mappinggenerator.name.Parameter;
 import io.legacymoddingmc.mappinggenerator.source.MappingSource;
+import io.legacymoddingmc.mappinggenerator.util.BytecodeUtils;
+import io.legacymoddingmc.mappinggenerator.util.IOHelper;
+import io.legacymoddingmc.mappinggenerator.util.JavaHelper;
 import lombok.val;
 import lombok.var;
 import org.gradle.api.Project;

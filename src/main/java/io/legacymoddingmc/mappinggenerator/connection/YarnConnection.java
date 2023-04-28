@@ -3,8 +3,8 @@ package io.legacymoddingmc.mappinggenerator.connection;
 import com.gtnewhorizons.retrofuturagradle.shadow.com.google.common.base.Preconditions;
 import com.gtnewhorizons.retrofuturagradle.shadow.com.google.gson.Gson;
 import com.gtnewhorizons.retrofuturagradle.shadow.org.apache.commons.io.FileUtils;
-import io.legacymoddingmc.mappinggenerator.GradleUtils;
-import io.legacymoddingmc.mappinggenerator.JavaHelper;
+import io.legacymoddingmc.mappinggenerator.util.GradleUtils;
+import io.legacymoddingmc.mappinggenerator.util.JavaHelper;
 import io.legacymoddingmc.mappinggenerator.Mapping;
 import io.legacymoddingmc.mappinggenerator.MappingCollection;
 import io.legacymoddingmc.mappinggenerator.name.*;
@@ -14,16 +14,12 @@ import lombok.val;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.WorkResult;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
+import java.io.*;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-import static io.legacymoddingmc.mappinggenerator.MappingHelper.remapDesc;
+import static io.legacymoddingmc.mappinggenerator.util.MappingHelper.remapDesc;
 
 public class YarnConnection implements MappingConnection {
 
@@ -37,6 +33,7 @@ public class YarnConnection implements MappingConnection {
     private final String url;
 
     public YarnConnection(Project project, String mappingVersion) {
+        this.project = project;
         String[] versionParts = mappingVersion.split("\\+");
         Preconditions.checkState(versionParts.length == 2);
         this.gameVersion = versionParts[0];
@@ -45,14 +42,15 @@ public class YarnConnection implements MappingConnection {
 
         url = "https://repo.legacyfabric.net/repository/legacyfabric/net/legacyfabric/yarn/"+mappingVersion+"/yarn-"+mappingVersion+"-mergedv2.jar";
         dir = FileUtils.getFile(GradleUtils.getCacheDir(project), "mappings", "yarn", mappingVersion+"-mergedv2");
-        this.project = project;
     }
 
     @SneakyThrows
     private String resolveMappingVersion(String version) {
         if(version.endsWith("+latest")) {
-            try(InputStream stream = new URL("https://meta.legacyfabric.net/v1/versions/loader/" + gameVersion).openStream()) {
-                LoaderVersionMeta[] meta = new Gson().fromJson(new InputStreamReader(new BufferedInputStream(stream)), LoaderVersionMeta[].class);
+            File outFile = FileUtils.getFile(GradleUtils.getCacheDir(project), "mappings", "yarn", "index", "v1-versions-loader-1.7.10.json");
+            GradleUtils.downloadFile("https://meta.legacyfabric.net/v1/versions/loader/" + gameVersion, outFile, true, true, project);
+            try(InputStream is = new FileInputStream(outFile)) {
+                LoaderVersionMeta[] meta = new Gson().fromJson(new InputStreamReader(new BufferedInputStream(is)), LoaderVersionMeta[].class);
                 return meta[0].mappings.version;
             }
         } else {

@@ -1,6 +1,6 @@
 package io.legacymoddingmc.mappinggenerator.connection;
 
-import io.legacymoddingmc.mappinggenerator.GradleUtils;
+import io.legacymoddingmc.mappinggenerator.util.GradleUtils;
 import lombok.SneakyThrows;
 import org.gradle.api.Project;
 

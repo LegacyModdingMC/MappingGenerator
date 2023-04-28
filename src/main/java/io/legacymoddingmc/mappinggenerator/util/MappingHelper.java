@@ -1,6 +1,7 @@
-package io.legacymoddingmc.mappinggenerator;
+package io.legacymoddingmc.mappinggenerator.util;
 
 import com.gtnewhorizons.retrofuturagradle.shadow.com.google.common.collect.Multimap;
+import io.legacymoddingmc.mappinggenerator.Mapping;
 import io.legacymoddingmc.mappinggenerator.name.Klass;
 
 import java.util.HashMap;

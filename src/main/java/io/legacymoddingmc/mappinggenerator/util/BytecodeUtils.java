@@ -1,4 +1,4 @@
-package io.legacymoddingmc.mappinggenerator;
+package io.legacymoddingmc.mappinggenerator.util;
 
 import java.util.ArrayList;
 import java.util.List;

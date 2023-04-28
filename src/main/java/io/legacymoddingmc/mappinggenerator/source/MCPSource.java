@@ -3,7 +3,7 @@ package io.legacymoddingmc.mappinggenerator.source;
 import com.gtnewhorizons.retrofuturagradle.shadow.com.opencsv.CSVReader;
 import com.gtnewhorizons.retrofuturagradle.shadow.org.apache.commons.lang3.StringUtils;
 import com.gtnewhorizons.retrofuturagradle.util.Utilities;
-import io.legacymoddingmc.mappinggenerator.BytecodeUtils;
+import io.legacymoddingmc.mappinggenerator.util.BytecodeUtils;
 import io.legacymoddingmc.mappinggenerator.MappingCollection;
 import io.legacymoddingmc.mappinggenerator.connection.MCPConnection;
 import io.legacymoddingmc.mappinggenerator.connection.SrgConnection;

@@ -1,4 +1,4 @@
-package io.legacymoddingmc.mappinggenerator;
+package io.legacymoddingmc.mappinggenerator.util;
 
 import com.gtnewhorizons.retrofuturagradle.shadow.de.undercouch.gradle.tasks.download.DownloadExtension;
 import com.gtnewhorizons.retrofuturagradle.shadow.org.apache.commons.io.FileUtils;
@@ -12,7 +12,7 @@ public class GradleUtils {
         return FileUtils.getFile(project.getGradle().getGradleUserHomeDir(), "caches", "minecraft_mapping_generator");
     }
 
-    public static void downloadFile(String url, File file, boolean onlyIfModified, Project project) {
+    public static void downloadFile(String url, File file, boolean onlyIfModified, boolean quiet, Project project) {
         val e = new DownloadExtension(project);
         e.run(action -> {
             try {
@@ -21,13 +21,20 @@ public class GradleUtils {
                 if(onlyIfModified) {
                     action.onlyIfModified(true);
                 }
+                if(quiet) {
+                    action.quiet(true);
+                }
             } catch(Exception ex) {
                 ex.printStackTrace();
             }
         });
     }
 
+    public static void downloadFile(String url, File file, boolean onlyIfModified, Project project) {
+        downloadFile(url, file, onlyIfModified, false, project);
+    }
+
     public static void downloadFile(String url, File file, Project project) {
-        downloadFile(url, file, false, project);
+        downloadFile(url, file, false, false, project);
     }
 }

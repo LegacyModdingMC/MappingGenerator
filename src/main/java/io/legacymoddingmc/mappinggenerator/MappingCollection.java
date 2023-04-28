@@ -104,13 +104,6 @@ public class MappingCollection {
     }
 
     public Collection<String> getForgeLocalVariables(String gameVersion, String methodSrgId) {
-        val si = forgeSrgSourceInfos.get(gameVersion);
-        val ret = new ArrayList<String>();
-        for(Method notch : new ArrayList<>(multiTranslate(new Method(null, methodSrgId, null), gameVersion, "srgId", "notch"))) {
-            Method srg = translate(notch, gameVersion, "notch", "srg");
-
-            ret.addAll(si.getMethodInfo(srg).getVariables());
-        }
-        return ret;
+        return forgeSrgSourceInfos.get(gameVersion).getVariablesInMethodsWithSrgId(methodSrgId);
     }
 }

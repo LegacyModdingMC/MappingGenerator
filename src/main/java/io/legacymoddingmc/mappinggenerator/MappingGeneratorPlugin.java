@@ -39,7 +39,7 @@ public class MappingGeneratorPlugin implements Plugin<Project> {
                     File remappedJar = taskRemapDecompiledJar.getOutputJar().get().getAsFile();
                     if(remappedJar.isFile()) {
                         System.out.println("Deleting " + remappedJar.getName() + " to force the decompilation chain to re-run!");
-                        //remappedJar.delete();
+                        remappedJar.delete();
                     }
                 } else {
                     project.getTasks().getByName("generateExtraMappings").setEnabled(false);

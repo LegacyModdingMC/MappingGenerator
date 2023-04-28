@@ -1,65 +1,41 @@
 package io.legacymoddingmc.mappinggenerator;
 
-import com.gtnewhorizons.retrofuturagradle.shadow.com.github.javaparser.StaticJavaParser;
-import com.gtnewhorizons.retrofuturagradle.shadow.com.github.javaparser.ast.CompilationUnit;
-import com.gtnewhorizons.retrofuturagradle.shadow.com.github.javaparser.ast.Node;
-import com.gtnewhorizons.retrofuturagradle.shadow.com.github.javaparser.ast.body.*;
-import com.gtnewhorizons.retrofuturagradle.shadow.com.github.javaparser.ast.visitor.VoidVisitorAdapter;
-import com.gtnewhorizons.retrofuturagradle.shadow.com.github.javaparser.symbolsolver.JavaSymbolSolver;
-import com.gtnewhorizons.retrofuturagradle.shadow.com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
-import com.gtnewhorizons.retrofuturagradle.shadow.com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver;
-import com.gtnewhorizons.retrofuturagradle.shadow.com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
-import com.gtnewhorizons.retrofuturagradle.shadow.com.google.gson.Gson;
-import com.gtnewhorizons.retrofuturagradle.shadow.org.apache.commons.io.FileUtils;
-import com.gtnewhorizons.retrofuturagradle.util.Utilities;
-import io.legacymoddingmc.mappinggenerator.name.Method;
+import com.gtnewhorizons.retrofuturagradle.shadow.com.google.common.collect.Lists;
+import com.gtnewhorizons.retrofuturagradle.shadow.com.google.common.collect.Sets;
+import com.gtnewhorizons.retrofuturagradle.shadow.org.apache.commons.lang3.StringUtils;
+import com.sun.source.tree.*;
+import com.sun.source.util.JavacTask;
+import com.sun.source.util.TreePath;
+import com.sun.source.util.TreePathScanner;
+import io.legacymoddingmc.mappinggenerator.name.Name;
 import lombok.*;
 
+import javax.tools.*;
 import java.io.File;
-import java.io.FileWriter;
 import java.util.*;
-import java.util.regex.Matcher;
-
-import org.gradle.api.Project;
-import org.gradle.api.tasks.WorkResult;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class SourceInfo {
 
-    private final String gameVersion;
-
     private final Map<String, ClassInfo> data = new HashMap<>();
 
     @SneakyThrows
-    public void load(File jar, Project project) {
+    public void load(File jar) {
         long t0 = System.nanoTime();
 
-        File extractedDir = extractJar(jar, project);
+        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+        StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
+        JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, null, Arrays.asList("-sourcepath", jar.getPath()), null, null);
+        Iterable<JavaFileObject> sources = fileManager.list(StandardLocation.SOURCE_PATH, "", Sets.newHashSet(JavaFileObject.Kind.SOURCE), true);
 
-        CombinedTypeSolver typeSolver = new CombinedTypeSolver(
-                new ReflectionTypeSolver(),
-                new JavaParserTypeSolver(extractedDir)
-        );
-        JavaSymbolSolver symbolSolver = new JavaSymbolSolver(typeSolver);
-        StaticJavaParser.getParserConfiguration().setSymbolResolver(symbolSolver);
+        JavaCompiler.CompilationTask task2 = compiler.getTask(null, fileManager, null, null, null, sources);
+        val parsed = Lists.newArrayList(((JavacTask) task2).parse());
 
-        Map<String, byte[]> resourceMap = new HashMap<>();
-        Map<String, String> sourceMap = new HashMap<>();
-
-        Utilities.loadMemoryJar(jar, resourceMap, sourceMap);
-
-        for(val e : sourceMap.entrySet()) {
-            String fileName = e.getKey();
-            String source = e.getValue();
-
-            val cu = StaticJavaParser.parse(source);
-            new Printer().visit(cu, this);
-        }
-
-        File outFile = FileUtils.getFile(GradleUtils.getCacheDir(project), "data", jar.getName() + ".json");
-        outFile.getParentFile().mkdirs();
-        try(FileWriter fw = new FileWriter(outFile)) {
-            new Gson().toJson(data, fw);
+        for(CompilationUnitTree cu : parsed) {
+            MyVisitor visitor = new MyVisitor();
+            visitor.scan(cu, this);
+            System.out.println();
         }
 
         long t1 = System.nanoTime();
@@ -67,23 +43,13 @@ public class SourceInfo {
         System.out.println("Parsed " + data.keySet().size() + " classes in " + (t1-t0) / 1_000_000_000.0 + " seconds.");
     }
 
-    private File extractJar(File jar, Project project) {
-        File outDir = new File(project.getBuildDir(), "mapping_generator/extracted/" + jar.getName().split("\\.")[0]);
-        outDir.mkdirs();
-        WorkResult work = project.copy(a -> {
-            a.from(project.zipTree(jar));
-            a.into(outDir);
-        });
-        return outDir;
-    }
-
-    public void addVariable(Method m, String name) {
-        data.computeIfAbsent(m.getKlass(), x -> new ClassInfo()).methods.computeIfAbsent(m.getMethod() + " " + m.getDesc(), x -> new ClassInfo.MethodInfo()).getVariables().add(name);
+    public void addVariable(PoorlyDescribedMethod method, String name) {
+        data.computeIfAbsent(method.getKlass(), x -> new ClassInfo()).methods.computeIfAbsent(method, x -> new ClassInfo.MethodInfo()).getVariables().add(name);
     }
 
     public static class ClassInfo {
         @Getter
-        private final Map<String, ClassInfo.MethodInfo> methods = new HashMap<>();
+        private final Map<PoorlyDescribedMethod, ClassInfo.MethodInfo> methods = new HashMap<>();
 
         @NoArgsConstructor
         public static class MethodInfo {
@@ -92,37 +58,81 @@ public class SourceInfo {
         }
     }
 
-    private static class Printer extends VoidVisitorAdapter<SourceInfo> {
+    public static class MyVisitor extends TreePathScanner<Void, SourceInfo> {
+
         @Override
-        public void visit(VariableDeclarator n, SourceInfo si) {
-            si.addVariable(getEnclosingMethod(n), n.getNameAsString());
-            super.visit(n, si);
-        }
+        public Void visitVariable(VariableTree variableTree, SourceInfo si) {
+            TreePath path = getCurrentPath();
+            String msg = "";
 
-        private static Method getEnclosingMethod(Node n) {
-            String packageName = ((CompilationUnit)(n.findAncestor(CompilationUnit.class).get())).getPackageDeclaration().get().getNameAsString();
-            TypeDeclaration td = (TypeDeclaration)n.findAncestor(TypeDeclaration.class).get();
-            Optional<String> optionalKlassName = td.getFullyQualifiedName();
-            String klassName = optionalKlassName.get();
-            klassName = klassName.substring(0, packageName.length() + 1) + klassName.substring(packageName.length() + 1).replaceAll("\\.", Matcher.quoteReplacement("$"));
+            MethodTree method = null;
+            int methodIndex = -1;
+            BlockTree block = null;
+            int blockIndex = -1;
+            String className = "";
+            CompilationUnitTree cu = null;
 
-            CallableDeclaration method = n.findAncestor(CallableDeclaration.class).orElse(null);
-            String methodName = null;
-            String desc = null;
-            try {
-                if(method != null) {
-                    if(method instanceof ConstructorDeclaration) {
-                        methodName = "<init>";
-                        desc = ((ConstructorDeclaration)method).toDescriptor();
-                    } else if(method instanceof MethodDeclaration) {
-                        methodName = method.getName().asString();
-                        desc = ((MethodDeclaration)method).toDescriptor();
+            int i = 0;
+            while(path != null) {
+                Tree leaf = path.getLeaf();
+
+                if(method == null && leaf instanceof MethodTree) {
+                    method = (MethodTree) leaf;
+                    methodIndex = i;
+                } else if(block == null && leaf instanceof BlockTree) {
+                    block = (BlockTree) leaf;
+                    blockIndex = i;
+                }
+                if(leaf instanceof ClassTree) {
+                    ClassTree klass = (ClassTree) leaf;
+                    String name = klass.getSimpleName().toString();
+                    if(className.isEmpty()) {
+                        className = name;
+                    } else {
+                        className = name + "$" + className;
                     }
                 }
-            } catch(Exception e){
+                if(leaf instanceof CompilationUnitTree) {
+                    cu = (CompilationUnitTree) leaf;
+                }
 
+                i++;
+                path = path.getParentPath();
             }
-            return new Method(klassName, methodName, desc);
+
+            if(method != null && block != null && blockIndex < methodIndex) {
+                si.addVariable(new PoorlyDescribedMethod(cu.getPackageName().toString() + "." + className, method.getName().toString(), method.getParameters().stream().map(v -> new PoorlyDescribedMethod.Parameter(v.getType().toString(), v.getName().toString())).collect(Collectors.toList()), String.valueOf(method.getReturnType())), variableTree.getName().toString());
+            }
+            return super.visitVariable(variableTree, si);
+        }
+    }
+
+    @Data
+    @AllArgsConstructor
+    private static class PoorlyDescribedMethod implements Name {
+        private String klass;
+        private String method;
+        private List<Parameter> parameters = new ArrayList<>();
+        private String returnType;
+
+        @Override
+        public String toString() {
+            return StringUtils.defaultString(klass, "?") + " "
+                    + StringUtils.defaultString(method, "?")
+                    + "(" + String.join(", ", parameters.stream().map(Object::toString).toArray(String[]::new)) + ")"
+                    + returnType;
+        }
+
+        @Data
+        @AllArgsConstructor
+        private static class Parameter {
+            private final String type;
+            private final String name;
+
+            @Override
+            public String toString() {
+                return type + " " + name;
+            }
         }
     }
 

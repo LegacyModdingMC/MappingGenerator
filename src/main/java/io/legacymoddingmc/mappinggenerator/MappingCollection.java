@@ -19,7 +19,7 @@ public class MappingCollection {
     }
 
     public void addDecompiledSource(Project project, String gameVersion, File jar) {
-        sourceInfos.computeIfAbsent(gameVersion, x -> new SourceInfo(gameVersion)).load(jar, project);
+        sourceInfos.computeIfAbsent(gameVersion, x -> new SourceInfo()).load(jar);
     }
 
     public JarInfo getJarInfo(String version) {

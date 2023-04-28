@@ -15,7 +15,6 @@ import org.gradle.api.Project;
 import org.gradle.api.tasks.WorkResult;
 
 import java.io.File;
-import java.net.URL;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +40,7 @@ public class SrgConnection implements MappingConnection {
     public File getDir() {
         if(!isUpToDate()) {
             File outFile = new File(dir, JavaHelper.getLast(url.split("/")));
-            FileUtils.copyURLToFile(new URL(url), outFile);
+            GradleUtils.downloadFile(url, outFile, project);
             WorkResult work = project.copy(a -> {
                 a.from(project.zipTree(outFile));
                 a.into(dir);

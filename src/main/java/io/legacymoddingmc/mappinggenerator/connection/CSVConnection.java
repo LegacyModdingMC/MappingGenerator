@@ -1,9 +1,7 @@
 package io.legacymoddingmc.mappinggenerator.connection;
 
-import com.gtnewhorizons.retrofuturagradle.shadow.de.undercouch.gradle.tasks.download.DownloadExtension;
 import io.legacymoddingmc.mappinggenerator.GradleUtils;
 import lombok.SneakyThrows;
-import lombok.val;
 import org.gradle.api.Project;
 
 import java.io.File;
@@ -36,16 +34,7 @@ public class CSVConnection {
 
     @SneakyThrows
     public File getFile() {
-        val e = new DownloadExtension(project);
-        e.run(action -> {
-            try {
-                action.src(url);
-                action.dest(outFile);
-                action.onlyIfModified(true);
-            } catch(Exception ex) {
-                ex.printStackTrace();
-            }
-        });
+        GradleUtils.downloadFile(url, outFile, true, project);
         return outFile;
     }
 }

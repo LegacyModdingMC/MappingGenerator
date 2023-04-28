@@ -68,7 +68,7 @@ public class YarnConnection implements MappingConnection {
     public File getDir() {
         if(!isUpToDate()) {
             File outFile = new File(dir, JavaHelper.getLast(url.split("/")));
-            FileUtils.copyURLToFile(new URL(url), outFile);
+            GradleUtils.downloadFile(url, outFile, project);
             WorkResult work = project.copy(a -> {
                 a.from(project.zipTree(outFile));
                 a.into(dir);

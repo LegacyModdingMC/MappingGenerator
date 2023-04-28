@@ -8,44 +8,24 @@ import com.sun.source.util.TreePathScanner;
 import lombok.SneakyThrows;
 import lombok.val;
 
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import javax.tools.JavaCompiler;
-import javax.tools.JavaFileObject;
-import javax.tools.StandardJavaFileManager;
-import javax.tools.ToolProvider;
+import javax.tools.*;
 import javax.tools.JavaCompiler.CompilationTask;
 
 public class Test {
 
-
-
     @SneakyThrows
     public static void main(String[] args) {
-        File jar = new File(args[0]);
-
-        List<File> files = new ArrayList<>();
-
-        try (Stream<Path> stream = Files.walk(jar.toPath())) {
-            stream.filter(Files::isRegularFile).forEach(f -> {
-                if(f.toFile().getName().endsWith(".java")) {
-                    files.add(f.toFile());
-                }
-            });
-        }
-
         long t0 = System.nanoTime();
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
-        Iterable<? extends JavaFileObject> cus = fileManager.getJavaFileObjects(files.toArray(new File[]{}));
-        CompilationTask task = compiler.getTask(null, fileManager, null, null, null, cus);
-        val parsed = Lists.newArrayList(((JavacTask) task).parse());
+        CompilationTask task = compiler.getTask(null, fileManager, null, Arrays.asList("-sourcepath", args[0]), null, null);
+        Iterable<JavaFileObject> sources = fileManager.list(StandardLocation.SOURCE_PATH, "", newHashSet(JavaFileObject.Kind.SOURCE), true);
+
+        CompilationTask task2 = compiler.getTask(null, fileManager, null, null, null, sources);
+        val parsed = Lists.newArrayList(((JavacTask) task2).parse());
 
         for(CompilationUnitTree cu : parsed) {
             System.out.println("CU: " + cu.getSourceFile().getName());
@@ -57,6 +37,14 @@ public class Test {
         long t1 = System.nanoTime();
 
         System.out.println("Parsed " + 0 + " classes in " + (t1-t0) / 1_000_000_000.0 + " seconds.");
+    }
+
+    private static <T> Set<T> newHashSet(T... elems) {
+        val set = new HashSet<T>();
+        for(val e : elems) {
+            set.add(e);
+        }
+        return set;
     }
 
     public static class MyVisitor extends TreePathScanner<Void, Void> {

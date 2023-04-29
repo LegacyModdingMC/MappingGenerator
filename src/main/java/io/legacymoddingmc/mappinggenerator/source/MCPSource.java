@@ -132,25 +132,6 @@ public class MCPSource implements MappingSource {
         int notTextBoundary = notTextMatcher.find() ? notTextMatcher.start() : desc.length();
 
         desc = desc.substring(0, notTextBoundary);
-/*
-    // End at one of the following:
-    // - a character that is not a space or a letter
-    // - a space followed by a capitalized letter
-    int end = -1;
-    for (int i = 0; i < desc.size() - 1; i++) {
-        char left = desc.charAt(i)
-        char right = desc.charAt(i + 1)
-
-        if ((!Character.isLetter(right) && right != ' ') || (left == ' ' && !Character.isLowerCase(right))) {
-            end = i + 1
-            break
-        }
-    }
-    if (end != -1) {
-        desc = desc.substring(0, end)
-    }*/
-
-        //int i = 0;
 
         String[] descParts = desc.split(",");
 
@@ -173,29 +154,12 @@ public class MCPSource implements MappingSource {
                 arg = arg.substring(0, newSentenceBoundary);
             }
 
-            // End at one of the following:
-            // - a character that is not a space or a letter
-            // - a space followed by a capitalized letter
-        /*int end = -1;
-        for (int i = 0; i < desc.size() - 1; i++) {
-            char left = desc.charAt(i)
-            char right = desc.charAt(i + 1)
-
-            if ((!Character.isLetter(right) && right != ' ') || (left == ' ' && !Character.isLowerCase(right))) {
-                end = i + 1
-                break
-            }
-        }
-        if (end != -1) {
-            desc = desc.substring(0, end)
-        }*/
-
             // Remove first word if it's a type or "and"
             String[] words = arg.split(" ");
             if (words.length > 1 && (words[0] == "string" || words[0] == "int" || words[0] == "byte" || words[0] == "char" || words[0] == "boolean" || words[0] == "long" || words[0] == "and")) {
                 words = Arrays.copyOfRange(words, 1, words.length);
             }
-            String a = "pepe";
+
             // Camelize
             String camel = String.join("", Arrays.stream(words).map(StringUtils::capitalize).toArray(String[]::new));
             if(!camel.startsWith("NBT")) { // exception :>

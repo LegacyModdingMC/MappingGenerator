@@ -3,7 +3,6 @@ package io.legacymoddingmc.mappinggenerator;
 import static io.legacymoddingmc.mappinggenerator.connection.SrgConnection.toSrgId;
 
 import com.gtnewhorizons.retrofuturagradle.mcp.PatchSourcesTask;
-import com.gtnewhorizons.retrofuturagradle.shadow.com.google.gson.Gson;
 import com.gtnewhorizons.retrofuturagradle.shadow.org.apache.commons.codec.digest.DigestUtils;
 import com.gtnewhorizons.retrofuturagradle.shadow.org.apache.commons.io.FileUtils;
 import com.gtnewhorizons.retrofuturagradle.util.Utilities;

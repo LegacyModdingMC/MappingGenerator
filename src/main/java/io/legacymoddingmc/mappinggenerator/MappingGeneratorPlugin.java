@@ -41,7 +41,7 @@ public class MappingGeneratorPlugin implements Plugin<Project> {
                     RemapSourceJarTask taskRemapDecompiledJar = (RemapSourceJarTask)project.getTasks().getByName("remapDecompiledJar");
                     File remappedJar = taskRemapDecompiledJar.getOutputJar().get().getAsFile();
                     if(remappedJar.isFile()) {
-                        System.out.println("Deleting " + remappedJar.getName() + " to force the decompilation chain to re-run!");
+                        System.out.println("Deleting " + remappedJar.getName() + " to force the decompilation chain to re-run");
                         remappedJar.delete();
                     }
                 } else {
@@ -55,7 +55,6 @@ public class MappingGeneratorPlugin implements Plugin<Project> {
 
         TaskProvider<?> taskGenerateExtraMappings = project.getTasks().register("generateExtraMappings", task -> {
             task.doLast(s -> {
-                System.out.println("Running generateExtraMappings!");
                 generator.generateExtraParameters();
             });
             task.dependsOn("downloadVanillaJars", "patchDecompiledJar");

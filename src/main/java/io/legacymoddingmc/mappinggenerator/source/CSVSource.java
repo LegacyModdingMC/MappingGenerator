@@ -7,6 +7,7 @@ import io.legacymoddingmc.mappinggenerator.connection.CSVConnection;
 import lombok.RequiredArgsConstructor;
 import org.gradle.api.Project;
 
+import java.util.List;
 import java.util.Map;
 
 @RequiredArgsConstructor
@@ -14,9 +15,9 @@ public class CSVSource implements MappingSource {
 
     private final String url;
 
-    public static CSVSource fromSpec(String[] spec) {
-        Preconditions.checkArgument(spec.length == 2);
-        return new CSVSource(spec[1]);
+    public static CSVSource fromSpec(List<String> spec) {
+        Preconditions.checkArgument(spec.size() == 2);
+        return new CSVSource(spec.get(1));
     }
 
     @Override

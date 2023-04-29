@@ -38,9 +38,9 @@ public class MCPSource implements MappingSource {
     @Getter
     private final Type type;
 
-    public static MCPSource fromSpec(String[] spec) {
-        Preconditions.checkArgument(spec.length == 4);
-        return new MCPSource(spec[1], spec[2], Type.valueOf(spec[3]));
+    public static MCPSource fromSpec(List<String> spec) {
+        Preconditions.checkArgument(spec.size() == 4);
+        return new MCPSource(spec.get(1), spec.get(2), Type.valueOf(spec.get(3)));
     }
 
     @Override

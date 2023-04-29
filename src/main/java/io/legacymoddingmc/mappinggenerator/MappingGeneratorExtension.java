@@ -2,6 +2,8 @@ package io.legacymoddingmc.mappinggenerator;
 
 import org.gradle.api.provider.ListProperty;
 
+import java.util.List;
+
 public interface MappingGeneratorExtension {
-    ListProperty<String[]> getSources();
+    ListProperty<List<String>> getSources();
 }

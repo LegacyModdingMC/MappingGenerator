@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.gradle.api.Project;
 
+import java.util.List;
 import java.util.Map;
 
 @RequiredArgsConstructor
@@ -16,9 +17,9 @@ public class YarnSource implements MappingSource {
     @Getter
     private final String mappingVersion;
 
-    public static YarnSource fromSpec(String[] spec) {
-        Preconditions.checkArgument(spec.length == 2);
-        return new YarnSource(spec[1]);
+    public static YarnSource fromSpec(List<String> spec) {
+        Preconditions.checkArgument(spec.size() == 2);
+        return new YarnSource(spec.get(1));
     }
 
     @Override

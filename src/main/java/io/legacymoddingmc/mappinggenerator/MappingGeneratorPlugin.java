@@ -16,6 +16,8 @@ import org.gradle.api.tasks.TaskProvider;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * A simple 'hello world' plugin.
@@ -25,7 +27,7 @@ public class MappingGeneratorPlugin implements Plugin<Project> {
         File outFile = new File(project.getBuildDir(), "extra-mappings/parameters.csv");
 
         val ext = project.getExtensions().create("mappingGenerator", MappingGeneratorExtension.class);
-        ext.getSources().convention(Arrays.asList(DefaultSources.DEFAULT_SOURCES));
+        ext.getSources().convention(Arrays.asList(DefaultSources.DEFAULT_SOURCES).stream().map(a -> Arrays.asList(a)).collect(Collectors.toList()));
 
         registerDefaultSources();
 
@@ -52,7 +54,7 @@ public class MappingGeneratorPlugin implements Plugin<Project> {
             task.doLast(s -> {
                 System.out.println("Running generateExtraMappings!");
                 MappingGenerator generator = new MappingGenerator(project);
-                for(String[] mappingSourceSpec : ext.getSources().get()) {
+                for(List<String> mappingSourceSpec : ext.getSources().get()) {
                     generator.addSource(MappingSourceFactory.fromSpec(mappingSourceSpec));
                 }
                 generator.generateExtraParameters(outFile);

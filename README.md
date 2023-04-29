@@ -16,7 +16,7 @@ First, add the plugin:
 
 ```gradle
 plugins {
-    id 'io.legacymoddingmc.mappinggenerator' version '0.1'
+    id 'io.github.legacymoddingmc.mappinggenerator' version '0.1'
 }
 ```
 
@@ -24,7 +24,7 @@ plugins {
 
 > TODO: add the funny mixin
 
-The plugin will layer names from sources defined in `mappingGenerator.sources`. The default list can be found [here](src/main/java/io/legacymoddingmc/mappinggenerator/DefaultSources.java).
+The plugin will layer names from sources defined in `mappingGenerator.sources`. The default list can be found [here](src/main/java/io/github/legacymoddingmc/mappinggenerator/DefaultSources.java).
 
 Sources are applied in sequential order, meaning names originating from later sources overwrite names originating from earlier ones. Additionally, MCP names will never be overwritten - MappingGenerator is purely additive.
 

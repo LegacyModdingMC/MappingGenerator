@@ -9,12 +9,15 @@ import io.legacymoddingmc.mappinggenerator.MappingCollection;
 import io.legacymoddingmc.mappinggenerator.connection.MCPConnection;
 import io.legacymoddingmc.mappinggenerator.connection.SrgConnection;
 import io.legacymoddingmc.mappinggenerator.name.Method;
+import io.legacymoddingmc.mappinggenerator.util.IOHelper;
+import io.legacymoddingmc.mappinggenerator.util.JavaHelper;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.gradle.api.Project;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +57,29 @@ public class MCPSource implements MappingSource {
             mappings.load(srgConn);
             generateExtraParametersFromMethodComments(mappings, mcpConn, out);
         }
+    }
+
+    @Override
+    public String getInputHash(Project project) {
+        boolean doINeedSrg = false;
+        boolean doINeedMCP = false;
+        switch(type) {
+            case parameters:
+                doINeedMCP = true;
+                break;
+            case methodComments:
+                doINeedSrg = doINeedMCP = true;
+                break;
+        }
+        List<File> dirsINeed = new ArrayList<>();
+        if(doINeedSrg) {
+            dirsINeed.add(new SrgConnection(project, gameVersion).getDir());
+        }
+        if(doINeedMCP) {
+            dirsINeed.add(new MCPConnection(project, gameVersion, mappingVersion).getDir());
+        }
+
+        return IOHelper.sha256(JavaHelper.flatten(dirsINeed.stream().map(x -> IOHelper.listRecursively(x)).collect(Collectors.toList())));
     }
 
     @SneakyThrows

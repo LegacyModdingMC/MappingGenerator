@@ -4,6 +4,7 @@ import com.gtnewhorizons.retrofuturagradle.shadow.com.google.common.base.Precond
 import io.legacymoddingmc.mappinggenerator.MappingCollection;
 import io.legacymoddingmc.mappinggenerator.connection.YarnConnection;
 import io.legacymoddingmc.mappinggenerator.name.Parameter;
+import io.legacymoddingmc.mappinggenerator.util.IOHelper;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.gradle.api.Project;
@@ -38,5 +39,11 @@ public class YarnSource implements MappingSource {
                 out.put(srg.getParameter(), yarn.getParameter());
             }
         }
+    }
+
+    @Override
+    public String getInputHash(Project project) {
+        YarnConnection yarnConn = new YarnConnection(project, mappingVersion);
+        return IOHelper.sha256(IOHelper.listRecursively(yarnConn.getDir()));
     }
 }

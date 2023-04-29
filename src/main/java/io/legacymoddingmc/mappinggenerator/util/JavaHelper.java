@@ -32,4 +32,9 @@ public class JavaHelper {
     public static <T> List<T> sorted(Collection<T> collection) {
         return collection.stream().sorted().collect(Collectors.toList());
     }
+
+    public static <T> List<T> flatten(List<List<T>> lists) {
+        // normal syntax for flattening a list
+        return lists.stream().flatMap(List::stream).collect(Collectors.toList());
+    }
 }

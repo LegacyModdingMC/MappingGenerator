@@ -23,8 +23,9 @@ import java.util.stream.Collectors;
  * A simple 'hello world' plugin.
  */
 public class MappingGeneratorPlugin implements Plugin<Project> {
+
     public void apply(Project project) {
-        File outFile = new File(project.getBuildDir(), "extra-mappings/parameters.csv");
+        MappingGenerator generator = new MappingGenerator(project);
 
         val ext = project.getExtensions().create("mappingGenerator", MappingGeneratorExtension.class);
         ext.getSources().convention(Arrays.asList(DefaultSources.DEFAULT_SOURCES).stream().map(a -> Arrays.asList(a)).collect(Collectors.toList()));
@@ -33,8 +34,10 @@ public class MappingGeneratorPlugin implements Plugin<Project> {
 
         TaskProvider<?> taskPreGenerateExtraMappings = project.getTasks().register("preGenerateExtraMappings", task -> {
             task.doLast(s -> {
-                boolean doIWantToRun = true;
-                if(doIWantToRun) {
+                for(List<String> mappingSourceSpec : ext.getSources().get()) {
+                    generator.addSource(MappingSourceFactory.fromSpec(mappingSourceSpec));
+                }
+                if(generator.shouldRun()) {
                     RemapSourceJarTask taskRemapDecompiledJar = (RemapSourceJarTask)project.getTasks().getByName("remapDecompiledJar");
                     File remappedJar = taskRemapDecompiledJar.getOutputJar().get().getAsFile();
                     if(remappedJar.isFile()) {
@@ -53,18 +56,14 @@ public class MappingGeneratorPlugin implements Plugin<Project> {
         TaskProvider<?> taskGenerateExtraMappings = project.getTasks().register("generateExtraMappings", task -> {
             task.doLast(s -> {
                 System.out.println("Running generateExtraMappings!");
-                MappingGenerator generator = new MappingGenerator(project);
-                for(List<String> mappingSourceSpec : ext.getSources().get()) {
-                    generator.addSource(MappingSourceFactory.fromSpec(mappingSourceSpec));
-                }
-                generator.generateExtraParameters(outFile);
+                generator.generateExtraParameters();
             });
             task.dependsOn("downloadVanillaJars", "patchDecompiledJar");
         });
         project.getTasks().getByName("remapDecompiledJar").dependsOn(taskGenerateExtraMappings);
 
         IMinecraftyExtension minecraft = (IMinecraftyExtension)project.getExtensions().getByName("minecraft");
-        minecraft.getExtraParamsCsvs().from(outFile);
+        minecraft.getExtraParamsCsvs().from(generator.getOutFile());
     }
 
     private void registerDefaultSources() {

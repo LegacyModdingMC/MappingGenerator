@@ -3,6 +3,9 @@ package io.legacymoddingmc.mappinggenerator;
 import static io.legacymoddingmc.mappinggenerator.connection.SrgConnection.toSrgId;
 
 import com.gtnewhorizons.retrofuturagradle.mcp.PatchSourcesTask;
+import com.gtnewhorizons.retrofuturagradle.shadow.com.google.gson.Gson;
+import com.gtnewhorizons.retrofuturagradle.shadow.org.apache.commons.codec.digest.DigestUtils;
+import com.gtnewhorizons.retrofuturagradle.shadow.org.apache.commons.io.FileUtils;
 import com.gtnewhorizons.retrofuturagradle.util.Utilities;
 import io.legacymoddingmc.mappinggenerator.connection.MCPConnection;
 import io.legacymoddingmc.mappinggenerator.connection.SrgConnection;
@@ -12,6 +15,8 @@ import io.legacymoddingmc.mappinggenerator.source.MappingSource;
 import io.legacymoddingmc.mappinggenerator.util.BytecodeUtils;
 import io.legacymoddingmc.mappinggenerator.util.IOHelper;
 import io.legacymoddingmc.mappinggenerator.util.JavaHelper;
+import lombok.Getter;
+import lombok.SneakyThrows;
 import lombok.val;
 import lombok.var;
 import org.gradle.api.Project;
@@ -26,16 +31,38 @@ public class MappingGenerator {
 
     private final Project project;
     private final List<MappingSource> sources = new ArrayList<>();
+    @Getter
+    private final File outFile;
+    private final File memoryFile;
+
+    private String lastHash;
+    private String inputHash;
 
     public MappingGenerator(Project project) {
         this.project = project;
+        outFile = new File(project.getBuildDir(), "extra-mappings/parameters.csv");
+        memoryFile = new File(outFile.getPath() + ".inputs.sha256");
+    }
+
+    @SneakyThrows
+    private void loadMemory() {
+        if(lastHash != null) return;
+        if(memoryFile.isFile()) {
+            lastHash = FileUtils.readFileToString(memoryFile, "utf8");
+        }
+    }
+
+    @SneakyThrows
+    private void saveMemory() {
+        memoryFile.getParentFile().mkdirs();
+        FileUtils.write(memoryFile, inputHash, "utf8");
     }
 
     public void addSource(MappingSource source) {
         sources.add(source);
     }
 
-    public void generateExtraParameters(File out) {
+    public void generateExtraParameters() {
         MappingCollection mappings = new MappingCollection();
 
         mappings.addVanillaJar("1.7.10", Utilities.getCacheDir(project, "mc-vanilla", "1.7.10", "client.jar"));
@@ -101,7 +128,9 @@ public class MappingGenerator {
         int named = (defaultParameterNameMap.size() + extraParameters.size());
         System.out.println("Parameter coverage: " + defaultParameterNameMap.size() + " -> " + named + " / " + totalParameters + " (" + ((named / (double)totalParameters) * 100.0) + "%)");
 
-        writeMappings(extraParameters, out);
+        writeMappings(extraParameters, outFile);
+
+        saveMemory();
     }
 
     private Set<String> getAllSrgParameterNames(MappingCollection mappings) {
@@ -138,5 +167,11 @@ public class MappingGenerator {
         } catch(IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public boolean shouldRun() {
+        loadMemory();
+        inputHash = DigestUtils.sha256Hex(sources.stream().map(s -> s.getInputHash(project)).collect(Collectors.joining()));
+        return lastHash == null || !lastHash.equals(inputHash);
     }
 }

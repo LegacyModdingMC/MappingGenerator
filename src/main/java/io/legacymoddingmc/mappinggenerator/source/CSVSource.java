@@ -1,6 +1,7 @@
 package io.legacymoddingmc.mappinggenerator.source;
 
 import com.gtnewhorizons.retrofuturagradle.shadow.com.google.common.base.Preconditions;
+import com.gtnewhorizons.retrofuturagradle.shadow.org.apache.commons.codec.digest.DigestUtils;
 import io.legacymoddingmc.mappinggenerator.util.IOHelper;
 import io.legacymoddingmc.mappinggenerator.MappingCollection;
 import io.legacymoddingmc.mappinggenerator.connection.CSVConnection;
@@ -26,5 +27,11 @@ public class CSVSource implements MappingSource {
         for(String[] line : IOHelper.readCSV(conn.getFile())) {
             out.put(line[0], line[1]);
         }
+    }
+
+    @Override
+    public String getInputHash(Project project) {
+        CSVConnection conn = new CSVConnection(project, url);
+        return IOHelper.sha256(conn.getFile());
     }
 }

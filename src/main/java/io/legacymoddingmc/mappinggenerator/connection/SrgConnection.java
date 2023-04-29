@@ -1,11 +1,9 @@
 package io.legacymoddingmc.mappinggenerator.connection;
 
-import static io.legacymoddingmc.mappinggenerator.util.JavaHelper.replaceLastSlashWithSpace;
-import static io.legacymoddingmc.mappinggenerator.util.JavaHelper.getLast;
-
 import com.gtnewhorizons.retrofuturagradle.shadow.com.google.common.base.Preconditions;
 import com.gtnewhorizons.retrofuturagradle.shadow.org.apache.commons.io.FileUtils;
-import io.legacymoddingmc.mappinggenerator.*;
+import io.legacymoddingmc.mappinggenerator.Mapping;
+import io.legacymoddingmc.mappinggenerator.MappingCollection;
 import io.legacymoddingmc.mappinggenerator.name.Field;
 import io.legacymoddingmc.mappinggenerator.name.Klass;
 import io.legacymoddingmc.mappinggenerator.name.Method;
@@ -23,6 +21,9 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static io.legacymoddingmc.mappinggenerator.util.JavaHelper.getLast;
+import static io.legacymoddingmc.mappinggenerator.util.JavaHelper.replaceLastSlashWithSpace;
 
 public class SrgConnection implements MappingConnection {
 

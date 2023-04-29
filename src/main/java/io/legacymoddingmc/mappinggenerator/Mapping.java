@@ -1,6 +1,5 @@
 package io.legacymoddingmc.mappinggenerator;
 
-import com.gtnewhorizons.retrofuturagradle.shadow.com.google.common.collect.ArrayListMultimap;
 import com.gtnewhorizons.retrofuturagradle.shadow.com.google.common.collect.HashMultimap;
 import com.gtnewhorizons.retrofuturagradle.shadow.com.google.common.collect.Multimap;
 import com.gtnewhorizons.retrofuturagradle.shadow.com.google.common.collect.SetMultimap;
@@ -10,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 @RequiredArgsConstructor

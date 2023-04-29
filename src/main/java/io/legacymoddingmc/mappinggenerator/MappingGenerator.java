@@ -1,7 +1,5 @@
 package io.legacymoddingmc.mappinggenerator;
 
-import static io.legacymoddingmc.mappinggenerator.connection.SrgConnection.toSrgId;
-
 import com.gtnewhorizons.retrofuturagradle.mcp.PatchSourcesTask;
 import com.gtnewhorizons.retrofuturagradle.shadow.org.apache.commons.codec.digest.DigestUtils;
 import com.gtnewhorizons.retrofuturagradle.shadow.org.apache.commons.io.FileUtils;
@@ -25,6 +23,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static io.legacymoddingmc.mappinggenerator.connection.SrgConnection.toSrgId;
 
 public class MappingGenerator {
 

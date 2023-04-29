@@ -2,7 +2,6 @@ package io.legacymoddingmc.mappinggenerator;
 
 import com.gtnewhorizons.retrofuturagradle.shadow.org.apache.commons.lang3.tuple.Pair;
 import io.legacymoddingmc.mappinggenerator.connection.MappingConnection;
-import io.legacymoddingmc.mappinggenerator.name.Method;
 import lombok.val;
 import org.gradle.api.Project;
 

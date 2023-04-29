@@ -1,10 +1,9 @@
 package io.legacymoddingmc.mappinggenerator.source;
 
 import com.gtnewhorizons.retrofuturagradle.shadow.com.google.common.base.Preconditions;
-import com.gtnewhorizons.retrofuturagradle.shadow.org.apache.commons.codec.digest.DigestUtils;
-import io.legacymoddingmc.mappinggenerator.util.IOHelper;
 import io.legacymoddingmc.mappinggenerator.MappingCollection;
 import io.legacymoddingmc.mappinggenerator.connection.CSVConnection;
+import io.legacymoddingmc.mappinggenerator.util.IOHelper;
 import lombok.RequiredArgsConstructor;
 import org.gradle.api.Project;
 

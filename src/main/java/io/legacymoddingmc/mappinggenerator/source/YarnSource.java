@@ -1,5 +1,6 @@
 package io.legacymoddingmc.mappinggenerator.source;
 
+import com.gtnewhorizons.retrofuturagradle.shadow.com.google.common.base.Preconditions;
 import io.legacymoddingmc.mappinggenerator.MappingCollection;
 import io.legacymoddingmc.mappinggenerator.connection.YarnConnection;
 import io.legacymoddingmc.mappinggenerator.name.Parameter;
@@ -14,6 +15,11 @@ public class YarnSource implements MappingSource {
 
     @Getter
     private final String mappingVersion;
+
+    public static YarnSource fromSpec(String[] spec) {
+        Preconditions.checkArgument(spec.length == 2);
+        return new YarnSource(spec[1]);
+    }
 
     @Override
     public void generateExtraParameters(Project project, MappingCollection mappings, Map<String, String> out) {

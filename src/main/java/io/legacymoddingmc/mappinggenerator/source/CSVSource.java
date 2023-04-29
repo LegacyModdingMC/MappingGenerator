@@ -1,5 +1,6 @@
 package io.legacymoddingmc.mappinggenerator.source;
 
+import com.gtnewhorizons.retrofuturagradle.shadow.com.google.common.base.Preconditions;
 import io.legacymoddingmc.mappinggenerator.util.IOHelper;
 import io.legacymoddingmc.mappinggenerator.MappingCollection;
 import io.legacymoddingmc.mappinggenerator.connection.CSVConnection;
@@ -12,6 +13,11 @@ import java.util.Map;
 public class CSVSource implements MappingSource {
 
     private final String url;
+
+    public static CSVSource fromSpec(String[] spec) {
+        Preconditions.checkArgument(spec.length == 2);
+        return new CSVSource(spec[1]);
+    }
 
     @Override
     public void generateExtraParameters(Project project, MappingCollection mappings, Map<String, String> out) {

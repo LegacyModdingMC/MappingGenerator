@@ -5,13 +5,17 @@ package io.legacymoddingmc.mappinggenerator;
 
 import com.gtnewhorizons.retrofuturagradle.IMinecraftyExtension;
 import com.gtnewhorizons.retrofuturagradle.mcp.RemapSourceJarTask;
+import io.legacymoddingmc.mappinggenerator.source.CSVSource;
 import io.legacymoddingmc.mappinggenerator.source.MCPSource;
+import io.legacymoddingmc.mappinggenerator.source.MappingSourceFactory;
 import io.legacymoddingmc.mappinggenerator.source.YarnSource;
+import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.TaskProvider;
 
 import java.io.File;
+import java.util.Arrays;
 
 /**
  * A simple 'hello world' plugin.
@@ -19,6 +23,11 @@ import java.io.File;
 public class MappingGeneratorPlugin implements Plugin<Project> {
     public void apply(Project project) {
         File outFile = new File(project.getBuildDir(), "extra-mappings/parameters.csv");
+
+        val ext = project.getExtensions().create("mappingGenerator", MappingGeneratorExtension.class);
+        ext.getSources().convention(Arrays.asList(DefaultSources.DEFAULT_SOURCES));
+
+        registerDefaultSources();
 
         TaskProvider<?> taskPreGenerateExtraMappings = project.getTasks().register("preGenerateExtraMappings", task -> {
             task.doLast(s -> {
@@ -43,11 +52,9 @@ public class MappingGeneratorPlugin implements Plugin<Project> {
             task.doLast(s -> {
                 System.out.println("Running generateExtraMappings!");
                 MappingGenerator generator = new MappingGenerator(project);
-                generator.addSource(new YarnSource("1.7.10+latest"));
-                generator.addSource(new MCPSource("1.7.10", "stable_12", MCPSource.Type.METHOD_COMMENTS));
-                generator.addSource(new MCPSource("1.8.9", "stable_22", MCPSource.Type.PARAMETERS));
-                generator.addSource(new MCPSource("1.12", "stable_39", MCPSource.Type.PARAMETERS));
-                //generator.addSource(new CSVSource("http://localhost:8000/test.csv"));
+                for(String[] mappingSourceSpec : ext.getSources().get()) {
+                    generator.addSource(MappingSourceFactory.fromSpec(mappingSourceSpec));
+                }
                 generator.generateExtraParameters(outFile);
             });
             task.dependsOn("downloadVanillaJars", "patchDecompiledJar");
@@ -56,5 +63,11 @@ public class MappingGeneratorPlugin implements Plugin<Project> {
 
         IMinecraftyExtension minecraft = (IMinecraftyExtension)project.getExtensions().getByName("minecraft");
         minecraft.getExtraParamsCsvs().from(outFile);
+    }
+
+    private void registerDefaultSources() {
+        MappingSourceFactory.register("mcp", MCPSource::fromSpec);
+        MappingSourceFactory.register("yarn", YarnSource::fromSpec);
+        MappingSourceFactory.register("csv", CSVSource::fromSpec);
     }
 }

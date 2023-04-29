@@ -1,5 +1,6 @@
 package io.legacymoddingmc.mappinggenerator.source;
 
+import com.gtnewhorizons.retrofuturagradle.shadow.com.google.common.base.Preconditions;
 import com.gtnewhorizons.retrofuturagradle.shadow.com.opencsv.CSVReader;
 import com.gtnewhorizons.retrofuturagradle.shadow.org.apache.commons.lang3.StringUtils;
 import com.gtnewhorizons.retrofuturagradle.util.Utilities;
@@ -26,8 +27,8 @@ import java.util.stream.IntStream;
 public class MCPSource implements MappingSource {
 
     public enum Type {
-        PARAMETERS,
-        METHOD_COMMENTS
+        parameters,
+        methodComments
     }
 
     @Getter
@@ -37,14 +38,19 @@ public class MCPSource implements MappingSource {
     @Getter
     private final Type type;
 
+    public static MCPSource fromSpec(String[] spec) {
+        Preconditions.checkArgument(spec.length == 4);
+        return new MCPSource(spec[1], spec[2], Type.valueOf(spec[3]));
+    }
+
     @Override
     public void generateExtraParameters(Project project, MappingCollection mappings, Map<String, String> out) {
         SrgConnection srgConn = new SrgConnection(project, gameVersion);
         MCPConnection mcpConn = new MCPConnection(project, gameVersion, mappingVersion);
 
-        if(type == Type.PARAMETERS) {
+        if(type == Type.parameters) {
             generateExtraParametersFromParameters(mappings, mcpConn, out);
-        } else if(type == Type.METHOD_COMMENTS) {
+        } else if(type == Type.methodComments) {
             mappings.load(srgConn);
             generateExtraParametersFromMethodComments(mappings, mcpConn, out);
         }

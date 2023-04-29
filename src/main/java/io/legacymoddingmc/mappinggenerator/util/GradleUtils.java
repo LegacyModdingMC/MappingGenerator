@@ -9,7 +9,7 @@ import java.io.File;
 
 public class GradleUtils {
     public static File getCacheDir(Project project) {
-        return FileUtils.getFile(project.getGradle().getGradleUserHomeDir(), "caches", "minecraft_mapping_generator");
+        return FileUtils.getFile(project.getGradle().getGradleUserHomeDir(), "caches", "minecraft-mapping-generator");
     }
 
     public static void downloadFile(String url, File file, boolean onlyIfModified, boolean quiet, Project project) {

@@ -46,6 +46,8 @@ ext.mappingGeneratorVersion = "0.1"
 apply from: 'https://raw.githubusercontent.com/LegacyModdingMC/MappingGenerator/master/extras/auto-patch-examplemod.gradle'
 ```
 
+See [this commit](https://github.com/embeddedt/ArchaicFix/commit/67f1927cb0f2d1057501115ee2157f8e1c4e06d2) for an example.
+
 ### Configuration
 
 The plugin will layer names from sources defined in `mappingGenerator.sources`. The default list can be found [here](src/main/java/io/github/legacymoddingmc/mappinggenerator/DefaultSources.java).
@@ -81,7 +83,7 @@ Extracts names from MCP mappings.
 
 ### Yarn
 
-Extracts names from Legacy Yarn mappings.
+Extracts names from [Legacy Yarn](https://github.com/Legacy-Fabric/yarn) mappings.
 
 **Specification:** `"yarn", "<mapping_version>"`
 

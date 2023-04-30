@@ -31,7 +31,7 @@ pluginManagement {
         }
     }
     repositories {
-        maven{
+        maven {
             url = "https://jitpack.io"
         }
     }

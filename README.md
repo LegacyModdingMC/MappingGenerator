@@ -20,9 +20,33 @@ plugins {
 }
 ```
 
-> TODO: update this for jitpack
+Since we're using jitpack you also have to merge this into `settings.gradle`, sorry
 
-> TODO: add the funny mixin
+```gradle
+pluginManagement {
+    resolutionStrategy {
+        eachPlugin {
+            if(requested.id.toString() == "io.github.legacymoddingmc.mappinggenerator")
+                useModule("com.github.legacymoddingmc:mappinggenerator:" + requested.version)
+        }
+    }
+    repositories {
+        maven{
+            url = "https://jitpack.io"
+        }
+    }
+}
+```
+
+People using [GTNH's ExampleMod](https://github.com/GTNewHorizons/ExampleMod1.7.10) may be disgruntled by the idea of editing `build.gradle`. To those people, I recommend merging [extras/auto-patch-examplemod.gradle](extras/auto-patch-examplemod.gradle) into `addon.gradle`. It will automatically add the plugin declaration line after every run of `updateBuildScript`.
+
+You can also `apply` it:
+```gradle
+def mappingGeneratorVersion = "0.1"
+apply from: 'https://raw.githubusercontent.com/LegacyModdingMC/MappingGenerator/master/extras/auto-patch-examplemod.gradle'
+```
+
+### Configuration
 
 The plugin will layer names from sources defined in `mappingGenerator.sources`. The default list can be found [here](src/main/java/io/github/legacymoddingmc/mappinggenerator/DefaultSources.java).
 

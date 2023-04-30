@@ -1,0 +1,24 @@
+afterEvaluate {
+    tasks.updateBuildScript.doLast {
+        def buildScriptFile = getFile("build.gradle")
+        def text = buildScriptFile.text
+        def originalText = text
+
+        // remove any existing patches
+        text = Pattern.compile("//PatchStart.*//PatchEnd\\n", Pattern.DOTALL).matcher(text).replaceAll("")
+
+        // add mapping generator plugin
+        def m = Pattern.compile("plugins \\{(.*?)\\}", Pattern.DOTALL).matcher(text)
+        m.find()
+        text = m.replaceFirst("plugins {" + m.group(1) + """//PatchStart
+    id 'io.legacymoddingmc.mappinggenerator' version '$mappingGeneratorVersion'
+//PatchEnd
+}""")
+
+        buildScriptFile.text = text
+
+        if(text != originalText) {
+            println("\nApplied new patches to the build script. Please REIMPORT the project or RESTART your IDE!")
+        }
+    }
+}

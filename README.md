@@ -42,7 +42,7 @@ People using [GTNH's ExampleMod](https://github.com/GTNewHorizons/ExampleMod1.7.
 
 You can also `apply` it:
 ```gradle
-def mappingGeneratorVersion = "0.1"
+ext.mappingGeneratorVersion = "0.1"
 apply from: 'https://raw.githubusercontent.com/LegacyModdingMC/MappingGenerator/master/extras/auto-patch-examplemod.gradle'
 ```
 

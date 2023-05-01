@@ -6,6 +6,6 @@ public class DefaultSources {
         {"mcp", "1.8.9", "stable_22", "parameters"},
         {"mcp", "1.12", "stable_39", "parameters"},
         {"mcp", "1.7.10", "stable_12", "methodComments"},
-        {"csv", "https://raw.githubusercontent.com/LegacyModdingMC/ExtraMappings/master/param.csv"}
+        {"csv", "https://raw.githubusercontent.com/LegacyModdingMC/ExtraMappings/master/params.csv"}
     };
 }

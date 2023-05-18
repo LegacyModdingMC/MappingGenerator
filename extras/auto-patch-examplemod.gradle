@@ -13,7 +13,7 @@ afterEvaluate {
         def m = Pattern.compile("plugins \\{(.*?)\\}", Pattern.DOTALL).matcher(text)
         m.find()
         text = m.replaceFirst("plugins {" + m.group(1) + """//PatchStart
-    id 'io.legacymoddingmc.mappinggenerator' version '$mappingGeneratorVersion'
+    id 'io.github.legacymoddingmc.mappinggenerator' version '$mappingGeneratorVersion'
 //PatchEnd
 }""")
 
